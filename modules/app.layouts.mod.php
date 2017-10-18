@@ -1,0 +1,379 @@
+<?php
+/*
+*
+* Author: Sherwin R. Terunez
+* Contact: sherwinterunez@yahoo.com
+*
+* Description:
+*
+* App Module
+*
+* Date: November 13, 2015
+*
+*/
+
+if(!defined('APPLICATION_RUNNING')) {
+	header("HTTP/1.0 404 Not Found");
+	die('access denied');
+}
+
+if(defined('ANNOUNCE')) {
+	echo "\n<!-- loaded: ".__FILE__." -->\n";
+}
+
+$layouts['app']['usermanagement'] = array(
+	'pattern'=>'2U',
+	'module'=>'user',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>200,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'usermanagementcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'usermanagementmanage',
+			),
+		),
+	)
+);
+
+$layouts['app']['useraccount'] = array(
+	'pattern'=>'2U',
+	'module'=>'useraccount',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>200,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'useraccountcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'useraccountmain',
+			),
+		),
+	)
+);
+
+$layouts['app']['websites'] = array(
+	'pattern'=>'2U',
+	'module'=>'web',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>200,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'websitescontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'websitesmanage',
+			),
+		),
+	)
+);
+
+$layouts['app']['messaging'] = array(
+	'pattern'=>'4H',
+	'module'=>'messaging',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'messagingcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'messagingmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'messagingdetails',
+			),
+		),
+		array(
+			'id'=>'d',
+			'text'=>'Details',
+			'width'=>250,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'messagingmisc',
+			),
+		),
+	)
+);
+
+$layouts['app']['promotion'] = array(
+	'pattern'=>'3L',
+	'module'=>'promotion',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'promotioncontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'promotionmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'promotiondetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['eload'] = array(
+	'pattern'=>'3L',
+	'module'=>'eload',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'eloadcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'eloadmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'eloaddetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['referral'] = array(
+	'pattern'=>'3L',
+	'module'=>'referral',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'referralcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'referralmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'referraldetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['scheduler'] = array(
+	'pattern'=>'3L',
+	'module'=>'scheduler',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'schedulercontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'schedulermain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'schedulerdetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['tnt'] = array(
+	'pattern'=>'3L',
+	'module'=>'tnt',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'tntcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'tntmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'tntdetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['groups'] = array(
+	'pattern'=>'3L',
+	'module'=>'group',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			//'text'=>'&nbsp;',
+			'width'=>150,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'groupcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'groupmain',
+			),
+		),
+		array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'groupdetail',
+			),
+		),
+	)
+);
+
+$layouts['app']['report'] = array(
+	//'pattern'=>'4H',
+  'pattern'=>'2U',
+	'module'=>'report',
+	'toolbar'=>'b',
+	'cells'=>array(
+		array(
+			'id'=>'a',
+			'text'=>'&nbsp;',
+			'width'=>200,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'reportcontrol',
+			),
+		),
+		array(
+			'id'=>'b',
+			'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'reportmain',
+			),
+		),
+		/*array(
+			'id'=>'c',
+			//'text'=>'&nbsp;',
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'reportdetails',
+			),
+		),
+		array(
+			'id'=>'d',
+			'text'=>'Details',
+			'width'=>250,
+			'html'=>array(
+				//'module'=>'user',
+				'formid'=>'reportmisc',
+			),
+		),*/
+	)
+);
+
+//

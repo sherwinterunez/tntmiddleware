@@ -1,0 +1,11 @@
+[
+	// text, tooltip, action
+	{ id: "open", type: "button", img: "open.gif", text: "Open", title: "Tooltip here", action: "myFunction",
+		// userdata for item
+		userdata: {
+			my_data_name: "my_data_value",
+			more_info: "new_value"
+		}
+	},
+	// icon only
+]

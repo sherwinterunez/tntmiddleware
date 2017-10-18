@@ -1,0 +1,12 @@
+html, body {
+			height: 100%;
+			padding: 0px;
+			margin: 0px;
+			overflow: hidden;
+}
+
+.dhxtabbar_base_dhx_web div.dhx_cell_tabbar div.dhx_cell_cont_tabbar 
+{
+	overflow: auto;
+}
+

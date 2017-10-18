@@ -1,0 +1,1498 @@
+--- schema
+
+-- tbl_session
+
+DROP SEQUENCE IF EXISTS tbl_session_seq CASCADE;
+
+CREATE SEQUENCE tbl_session_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_session;
+
+CREATE TABLE tbl_session (
+    id bigint DEFAULT nextval(('tbl_session_seq'::text)::regclass) NOT NULL,
+    hash character varying(40) DEFAULT ''::text NOT NULL,
+    sessiondata text DEFAULT ''::text NOT NULL,
+    ip character varying(15) DEFAULT ''::text NOT NULL,
+    datestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_session ADD CONSTRAINT tbl_session_primary_key PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX indx_session_hash ON tbl_session USING btree (hash);
+
+CREATE INDEX indx_session_ip ON tbl_session USING btree (ip);
+
+-- tbl_options
+
+DROP SEQUENCE IF EXISTS tbl_options_seq CASCADE;
+
+CREATE SEQUENCE tbl_options_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_options;
+
+CREATE TABLE tbl_options (
+    options_id bigint DEFAULT nextval(('tbl_options_seq'::text)::regclass) NOT NULL,
+	options_name text DEFAULT ''::text NOT NULL,
+	options_value text DEFAULT ''::text NOT NULL,
+    options_type text DEFAULT ''::text NOT NULL,
+    options_priority integer NOT NULL DEFAULT 0,
+    options_hidden integer NOT NULL DEFAULT 0,
+	options_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_options ADD CONSTRAINT tbl_options_primary_key PRIMARY KEY (options_id);
+
+CREATE UNIQUE INDEX indx_options_name ON tbl_options USING btree (options_name);
+
+INSERT INTO tbl_options (options_name,options_type,options_value) VALUES ('$KEY_QLOAD','STRING','QLOAD');
+INSERT INTO tbl_options (options_name,options_type,options_value) VALUES ('$PRODUCT_SMART300','STRING','SMART300');
+INSERT INTO tbl_options (options_name,options_type,options_value) VALUES ('$MOBILENUMBER','REGEX','(0)(\d{3})(\d{7})$');
+
+-- tbl_roles
+
+DROP SEQUENCE IF EXISTS tbl_roles_seq CASCADE;
+
+CREATE SEQUENCE tbl_roles_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_roles;
+
+CREATE TABLE tbl_roles (
+    role_id bigint DEFAULT nextval(('tbl_roles_seq'::text)::regclass) NOT NULL,
+    role_name character varying(40) DEFAULT ''::text NOT NULL,
+    role_desc text DEFAULT ''::text NOT NULL,
+    content JSONB NOT NULL,
+    flag integer NOT NULL DEFAULT 0,
+    createstamp timestamp with time zone DEFAULT now(),
+    createdby text DEFAULT ''::text NOT NULL,
+    updatestamp timestamp with time zone DEFAULT now(),
+    updatedby text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY tbl_roles ADD CONSTRAINT tbl_roles_primary_key PRIMARY KEY (role_id);
+
+CREATE UNIQUE INDEX indx_role_name ON tbl_roles USING btree (role_name);
+
+INSERT INTO tbl_roles (role_name, role_desc, createdby) VALUES ('System Administrator','Administers the whole system','System Administrator');
+INSERT INTO tbl_roles (role_name, role_desc, createdby) VALUES ('Administrator','Administers the whole system','System Administrator');
+
+-- tbl_access
+
+DROP SEQUENCE IF EXISTS tbl_access_seq CASCADE;
+
+CREATE SEQUENCE tbl_access_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_access;
+
+CREATE TABLE tbl_access (
+    access_id bigint DEFAULT nextval(('tbl_access_seq'::text)::regclass) NOT NULL,
+    role_id bigint NOT NULL DEFAULT 0,
+    access_name character varying(40) DEFAULT ''::text NOT NULL,
+    flag integer NOT NULL DEFAULT 0,
+    createstamp timestamp with time zone DEFAULT now(),
+    createdby text DEFAULT ''::text NOT NULL,
+    updatestamp timestamp with time zone DEFAULT now(),
+    updatedby text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY tbl_access ADD CONSTRAINT tbl_access_primary_key PRIMARY KEY (access_id);
+
+-- tbl_users
+
+DROP SEQUENCE IF EXISTS tbl_users_seq CASCADE;
+
+CREATE SEQUENCE tbl_users_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_users;
+
+CREATE TABLE tbl_users (
+    user_id bigint DEFAULT nextval(('tbl_users_seq'::text)::regclass) NOT NULL,
+    role_id bigint NOT NULL DEFAULT 0,
+    user_hash character varying(40) DEFAULT ''::text NOT NULL,
+    user_login character varying(40) DEFAULT ''::text NOT NULL,
+    user_email character varying(40) DEFAULT ''::text NOT NULL,
+    content JSONB NOT NULL,
+    flag integer NOT NULL DEFAULT 0,
+    createstamp timestamp with time zone DEFAULT now(),
+    createdby text DEFAULT ''::text NOT NULL,
+    updatestamp timestamp with time zone DEFAULT now(),
+    updatedby text DEFAULT ''::text NOT NULL,
+    lastloginstamp timestamp with time zone,
+    loginfailed integer NOT NULL DEFAULT 0,
+    loginfailedstamp timestamp with time zone
+);
+
+ALTER TABLE ONLY tbl_users ADD CONSTRAINT tbl_users_primary_key PRIMARY KEY (user_id);
+
+CREATE UNIQUE INDEX indx_user_hash ON tbl_users USING btree (user_hash);
+CREATE UNIQUE INDEX indx_user_login ON tbl_users USING btree (user_login);
+CREATE UNIQUE INDEX indx_user_email ON tbl_users USING btree (user_email);
+CREATE INDEX indx_user_roleid ON tbl_users USING btree (role_id);
+
+INSERT INTO tbl_users (role_id,user_hash,user_login,user_email,content) VALUES ('1','d00aef6caf779abeb2c74bea73aceb01ce0f5d9d','sysadmin','sysadmin@yahoo.com','{"action": "form", "module": "user", "formval": "efc3c218d6646cbabb1896d2e41c0b30cf973829", "buttonid": "usermanagementsave", "routerid": "app", "user_hash": "d00aef6caf779abeb2c74bea73aceb01ce0f5d9d", "user_role": "roleid_1", "user_email": "sysad@yahoo.com", "user_fname": "System", "user_lname": "Administrator", "user_login": "sysadmin", "user_mname": "X", "user_role_new_value": "false"}');
+
+-- tbl_audit
+
+DROP SEQUENCE IF EXISTS tbl_audit_seq CASCADE;
+
+CREATE SEQUENCE tbl_audit_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_audit;
+
+CREATE TABLE tbl_audit (
+    audit_id bigint DEFAULT nextval(('tbl_audit_seq'::text)::regclass) NOT NULL,
+    audit_desc character varying(40) DEFAULT ''::text NOT NULL,
+    user_id bigint NOT NULL DEFAULT 0,
+    role_id bigint NOT NULL DEFAULT 0,
+    content JSONB NOT NULL,
+    createstamp timestamp with time zone DEFAULT now(),
+    createdby text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY tbl_audit ADD CONSTRAINT tbl_audit_primary_key PRIMARY KEY (audit_id);
+
+---------------------------------------------------------------------------------------------------------------------
+-- tbl_websites
+
+--DROP SEQUENCE IF EXISTS tbl_websites_seq CASCADE;
+
+--CREATE SEQUENCE tbl_websites_seq
+--    START WITH 1
+--    INCREMENT BY 1
+--    NO MINVALUE
+--    NO MAXVALUE
+--    CACHE 1;
+
+--DROP TABLE IF EXISTS tbl_websites;
+
+--CREATE TABLE tbl_websites (
+--    website_id bigint DEFAULT nextval(('tbl_websites_seq'::text)::regclass) NOT NULL,
+--    user_id bigint NOT NULL DEFAULT 0,
+--    website_name character varying(40) DEFAULT ''::text NOT NULL,
+--    website_domain character varying(40) DEFAULT ''::text NOT NULL,
+--    website_desc character varying(40) DEFAULT ''::text NOT NULL,
+--    content JSONB NOT NULL,
+--    flag integer NOT NULL DEFAULT 0,
+--    createstamp timestamp with time zone DEFAULT now(),
+--    createdby text DEFAULT ''::text NOT NULL,
+--    updatestamp timestamp with time zone DEFAULT now(),
+--    updatedby text DEFAULT ''::text NOT NULL
+--);
+
+--ALTER TABLE ONLY tbl_websites ADD CONSTRAINT tbl_websites_primary_key PRIMARY KEY (website_id);
+
+--CREATE UNIQUE INDEX indx_website_domain ON tbl_websites USING btree (website_domain);
+---------------------------------------------------------------------------------------------------------------------
+
+
+-- tbl_smsinbox
+
+DROP SEQUENCE IF EXISTS tbl_smsinbox_seq CASCADE;
+
+CREATE SEQUENCE tbl_smsinbox_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_smsinbox;
+
+CREATE TABLE tbl_smsinbox (
+    smsinbox_id bigint DEFAULT nextval(('tbl_smsinbox_seq'::text)::regclass) NOT NULL,
+    smsinbox_contactsid bigint NOT NULL DEFAULT 0,
+    smsinbox_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsinbox_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsinbox_message text DEFAULT ''::text NOT NULL,
+    smsinbox_network character varying(20) DEFAULT ''::text NOT NULL,
+    smsinbox_udhref character varying(10) DEFAULT ''::text NOT NULL,
+    smsinbox_udhtotal character varying(10) DEFAULT ''::text NOT NULL,
+    smsinbox_udhpart character varying(10) DEFAULT ''::text NOT NULL,
+    smsinbox_rawpdu text DEFAULT ''::text NOT NULL,
+    smsinbox_deleted integer NOT NULL DEFAULT 0,
+    smsinbox_unread integer NOT NULL DEFAULT 0,
+    smsinbox_processed integer NOT NULL DEFAULT 0,
+    smsinbox_eload integer NOT NULL DEFAULT 0,
+    smsinbox_processedby character varying(20) DEFAULT ''::text NOT NULL,
+    smsinbox_flag integer NOT NULL DEFAULT 0,
+    smsinbox_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_smsinbox ADD CONSTRAINT tbl_smsinbox_primary_key PRIMARY KEY (smsinbox_id);
+
+CREATE INDEX indx_smsinbox_contactsid ON tbl_smsinbox USING btree (smsinbox_contactsid);
+
+--INSERT INTO tbl_smsinbox (smsinbox_fromnumber,smsinbox_tonumber,smsinbox_message,smsinbox_network) VALUES ('09493621618','09287710253','The quick brown fox jump over the lazy dog besides the river bank.',' Smart/Talk N Text');
+--INSERT INTO tbl_smsinbox (smsinbox_fromnumber,smsinbox_tonumber,smsinbox_message,smsinbox_network) VALUES ('09718924162','09287710253','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consequat varius convallis. Praesent mollis suscipit urna eu ultrices. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum tempus risus ut urna accumsan feugiat. Nam eget ante ligula. Sed in eros non odio dignissim interdum sit amet sit amet metus. Integer viverra eros sed massa malesuada rutrum sed at nibh. Donec id ex nibh. Morbi quis turpis mi. Vestibulum vel laoreet nulla, vel euismod magna. Suspendisse euismod nunc turpis, et egestas elit gravida ac.',' Smart/Talk N Text');
+
+-- tbl_smsinboxtemp
+
+DROP SEQUENCE IF EXISTS tbl_smsinboxtemp_seq CASCADE;
+
+CREATE SEQUENCE tbl_smsinboxtemp_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_smsinboxtemp;
+
+CREATE TABLE tbl_smsinboxtemp (
+    smsinboxtemp_id bigint DEFAULT nextval(('tbl_smsinboxtemp_seq'::text)::regclass) NOT NULL,
+    smsinboxtemp_contactsid bigint NOT NULL DEFAULT 0,
+    smsinboxtemp_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_message text DEFAULT ''::text NOT NULL,
+    smsinboxtemp_network character varying(20) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_udh character varying(20) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_udhref character varying(10) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_udhtotal character varying(10) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_udhpart character varying(10) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_rawpdu text DEFAULT ''::text NOT NULL,
+    smsinboxtemp_deleted integer NOT NULL DEFAULT 0,
+    smsinboxtemp_unread integer NOT NULL DEFAULT 0,
+    smsinboxtemp_processed integer NOT NULL DEFAULT 0,
+    smsinboxtemp_eload integer NOT NULL DEFAULT 0,
+    smsinboxtemp_processedby character varying(20) DEFAULT ''::text NOT NULL,
+    smsinboxtemp_flag integer NOT NULL DEFAULT 0,
+    smsinboxtemp_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_smsinboxtemp ADD CONSTRAINT tbl_smsinboxtemp_primary_key PRIMARY KEY (smsinboxtemp_id);
+
+CREATE INDEX indx_smsinboxtemp_contactsid ON tbl_smsinboxtemp USING btree (smsinboxtemp_contactsid);
+
+-- tbl_smsoutbox
+
+DROP SEQUENCE IF EXISTS tbl_smsoutbox_seq CASCADE;
+
+CREATE SEQUENCE tbl_smsoutbox_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_smsoutbox;
+
+CREATE TABLE tbl_smsoutbox (
+    smsoutbox_id bigint DEFAULT nextval(('tbl_smsoutbox_seq'::text)::regclass) NOT NULL,
+    smsoutbox_promossentid bigint NOT NULL DEFAULT 0,
+    smsoutbox_contactid bigint NOT NULL DEFAULT 0,
+    smsoutbox_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsoutbox_portdevice character varying(20) DEFAULT ''::text NOT NULL,
+    smsoutbox_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsoutbox_message text DEFAULT ''::text NOT NULL,
+    smsoutbox_fullmessage text DEFAULT ''::text NOT NULL,
+    smsoutbox_encoded text DEFAULT ''::text NOT NULL,
+    smsoutbox_udhref character varying(10) DEFAULT ''::text NOT NULL,
+    smsoutbox_part integer NOT NULL DEFAULT 0,
+    smsoutbox_total integer NOT NULL DEFAULT 0,
+    smsoutbox_type integer NOT NULL DEFAULT 0,
+    smsoutbox_delay integer NOT NULL DEFAULT 0,
+    smsoutbox_eload integer NOT NULL DEFAULT 0,
+    smsoutbox_status integer NOT NULL DEFAULT 0,
+    smsoutbox_error integer NOT NULL DEFAULT 0,
+    smsoutbox_start integer NOT NULL DEFAULT 0,
+    smsoutbox_sent integer NOT NULL DEFAULT 0,
+    smsoutbox_deleted integer NOT NULL DEFAULT 0,
+    smsoutbox_flag integer NOT NULL DEFAULT 0,
+    smsoutbox_createstamp timestamp with time zone DEFAULT now(),
+    smsoutbox_sentstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_smsoutbox ADD CONSTRAINT tbl_smsoutbox_primary_key PRIMARY KEY (smsoutbox_id);
+
+CREATE INDEX indx_smsoutbox_contactid ON tbl_smsoutbox USING btree (smsoutbox_contactid);
+
+--INSERT INTO tbl_smsoutbox (smsoutbox_fromnumber,smsoutbox_tonumber,smsoutbox_message,smsoutbox_network) VALUES ('09287710253','09493621618','The quick brown fox jump over the lazy dog besides the river bank.',' Smart/Talk N Text');
+--INSERT INTO tbl_smsoutbox (smsoutbox_fromnumber,smsoutbox_tonumber,smsoutbox_message,smsoutbox_network,smsoutbox_sent) VALUES ('09287710253','09493621618','The quick brown fox jump over the lazy dog besides the river bank.',' Smart/Talk N Text','1');
+--INSERT INTO tbl_smsoutbox (smsoutbox_fromnumber,smsoutbox_tonumber,smsoutbox_message,smsoutbox_network,smsoutbox_sent) VALUES ('09287710253','09194352345','Lorem ipsum dolor sit amet.',' Smart/Talk N Text','1');
+--INSERT INTO tbl_smsoutbox (smsoutbox_fromnumber,smsoutbox_tonumber,smsoutbox_message,smsoutbox_network,smsoutbox_sent) VALUES ('09287710253','09174583259','Praesent volutpat, neque vitae sodales rutrum, sem massa accumsan dui, non accumsan ex nunc ut urna. Vestibulum accumsan enim dolor, sed facilisis erat porttitor congue. Praesent aliquam quis purus sit amet feugiat. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean convallis, dui interdum sollicitudin euismod, ipsum leo vehicula augue, non tempor massa eros non eros. Phasellus vel lacus a tortor ullamcorper consequat. Suspendisse eget sollicitudin nunc. Donec a auctor est. Aenean interdum lectus et vehicula aliquam. Integer at quam vel arcu finibus aliquam. Praesent scelerisque augue eu mauris gravida, ornare euismod nulla dictum.',' Smart/Talk N Text','1');
+
+-- tbl_contact
+
+DROP SEQUENCE IF EXISTS tbl_contact_seq CASCADE;
+
+CREATE SEQUENCE tbl_contact_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_contact;
+
+CREATE TABLE tbl_contact (
+    contact_id bigint DEFAULT nextval(('tbl_contact_seq'::text)::regclass) NOT NULL,
+    contact_number character varying(20) DEFAULT ''::text NOT NULL,
+    contact_network character varying(20) DEFAULT ''::text NOT NULL,
+    contact_fname character varying(30) DEFAULT ''::text NOT NULL,
+    contact_lname character varying(30) DEFAULT ''::text NOT NULL,
+    contact_nick character varying(30) DEFAULT ''::text NOT NULL,
+    contact_address character varying(100) DEFAULT ''::text NOT NULL,
+    contact_city character varying(100) DEFAULT ''::text NOT NULL,
+    contact_country character varying(100) DEFAULT ''::text NOT NULL,
+    contact_uploadsubscribed integer NOT NULL DEFAULT 0,
+    contact_smssubscribed integer NOT NULL DEFAULT 0,
+    contact_unsubscribed integer NOT NULL DEFAULT 0,
+    contact_deleted integer NOT NULL DEFAULT 0,
+    contact_flag integer NOT NULL DEFAULT 0,
+    contact_createstamp timestamp with time zone DEFAULT now(),
+    contact_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_contact ADD CONSTRAINT tbl_contact_primary_key PRIMARY KEY (contact_id);
+CREATE UNIQUE INDEX indx_contact_number ON tbl_contact USING btree (contact_number);
+CREATE INDEX indx_contact_network ON tbl_contact USING btree (contact_network);
+
+INSERT INTO tbl_contact (contact_number,contact_network,contact_nick) VALUES ('09493621618','Smart/Talk N Text','Subscriber #1');
+INSERT INTO tbl_contact (contact_number,contact_network,contact_nick) VALUES ('09493621255','Smart/Talk N Text','Subscriber #2');
+
+-- tbl_group
+
+DROP SEQUENCE IF EXISTS tbl_group_seq CASCADE;
+
+CREATE SEQUENCE tbl_group_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_group;
+
+CREATE TABLE tbl_group (
+    group_id bigint DEFAULT nextval(('tbl_group_seq'::text)::regclass) NOT NULL,
+    group_name character varying(30) DEFAULT ''::text NOT NULL,
+    group_desc character varying(30) DEFAULT ''::text NOT NULL,
+    group_deleted integer NOT NULL DEFAULT 0,
+    group_flag integer NOT NULL DEFAULT 0,
+    group_timestamp timestamp with time zone DEFAULT now(),
+    group_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_group ADD CONSTRAINT tbl_group_primary_key PRIMARY KEY (group_id);
+CREATE UNIQUE INDEX indx_group_name ON tbl_group USING btree (group_name);
+
+INSERT INTO tbl_group (group_name,group_desc) VALUES ('Group #1','Clients #1');
+INSERT INTO tbl_group (group_name,group_desc) VALUES ('Group #2','Clients #2');
+INSERT INTO tbl_group (group_name,group_desc) VALUES ('Group #3','Clients #3');
+INSERT INTO tbl_group (group_name,group_desc) VALUES ('Group #4','Clients #4');
+INSERT INTO tbl_group (group_name,group_desc) VALUES ('Group #5','Clients #5');
+
+-- tbl_groupcontact
+
+DROP SEQUENCE IF EXISTS tbl_groupcontact_seq CASCADE;
+
+CREATE SEQUENCE tbl_groupcontact_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_groupcontact;
+
+CREATE TABLE tbl_groupcontact (
+    groupcontact_id bigint DEFAULT nextval(('tbl_groupcontact_seq'::text)::regclass) NOT NULL,
+    groupcontact_groupid integer NOT NULL DEFAULT 0,
+    groupcontact_contactid integer NOT NULL DEFAULT 0,
+    groupcontact_flag integer NOT NULL DEFAULT 0,
+    groupcontact_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_groupcontact ADD CONSTRAINT tbl_groupcontact_primary_key PRIMARY KEY (groupcontact_id);
+
+CREATE UNIQUE INDEX indx_groupcontact_groupidcontactid ON tbl_groupcontact USING btree (groupcontact_groupid,groupcontact_contactid);
+
+-- tbl_network
+
+DROP SEQUENCE IF EXISTS tbl_network_seq CASCADE;
+
+CREATE SEQUENCE tbl_network_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_network;
+
+CREATE TABLE tbl_network (
+    network_id bigint DEFAULT nextval(('tbl_network_seq'::text)::regclass) NOT NULL,
+    network_number character varying(20) DEFAULT ''::text NOT NULL,
+    network_name character varying(20) DEFAULT ''::text NOT NULL,
+    network_deleted integer NOT NULL DEFAULT 0,
+    network_flag integer NOT NULL DEFAULT 0,
+    network_timestamp timestamp with time zone DEFAULT now(),
+    network_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_network ADD CONSTRAINT tbl_network_primary_key PRIMARY KEY (network_id);
+CREATE UNIQUE INDEX indx_network_number ON tbl_network USING btree (network_number);
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('905','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('906','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('915','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('916','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('917','Globe/Touch Mobile');
+--INSERT INTO tbl_network (network_number,network_name) VALUES ('925','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('926','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('927','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('935','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('936','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('994','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('996','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('997','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('817','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('975','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('976','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('977','Globe/Touch Mobile');
+--INSERT INTO tbl_network (network_number,network_name) VALUES ('994','Globe/Touch Mobile');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('995','Globe/Touch Mobile');
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('907','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('908','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('909','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('910','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('912','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('918','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('919','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('920','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('921','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('928','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('929','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('930','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('938','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('939','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('946','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('947','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('950','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('948','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('949','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('951','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('998','Smart/Talk N Text');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('999','Smart/Talk N Text');
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('922','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('923','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('924','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('925','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('931','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('932','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('933','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('934','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('940','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('941','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('942','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('943','Sun Cellular');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('944','Sun Cellular');
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('937','ABS-CBN');
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('973','Exetel');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('974','Exetel');
+
+--INSERT INTO tbl_network (network_number,network_name) VALUES ('977','Next');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('978','Next');
+INSERT INTO tbl_network (network_number,network_name) VALUES ('979','Next');
+
+INSERT INTO tbl_network (network_number,network_name) VALUES ('998','Globe/Touch Mobile');
+
+-- tbl_port
+
+DROP SEQUENCE IF EXISTS tbl_port_seq CASCADE;
+
+CREATE SEQUENCE tbl_port_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_port;
+
+CREATE TABLE tbl_port (
+    port_id bigint DEFAULT nextval(('tbl_port_seq'::text)::regclass) NOT NULL,
+    port_device character varying(20) DEFAULT ''::text NOT NULL,
+    port_name character varying(20) DEFAULT ''::text NOT NULL,
+    port_desc text DEFAULT ''::text NOT NULL,
+    port_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    port_network character varying(20) DEFAULT ''::text NOT NULL,
+    port_disabled integer NOT NULL DEFAULT 0,
+    port_deleted integer NOT NULL DEFAULT 0,
+    port_status integer NOT NULL DEFAULT 0,
+    port_flag integer NOT NULL DEFAULT 0,
+    port_resetstamp timestamp with time zone DEFAULT now()
+    port_timestamp timestamp with time zone DEFAULT now(),
+    port_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_port ADD CONSTRAINT tbl_port_primary_key PRIMARY KEY (port_id);
+
+INSERT INTO tbl_port (port_device,port_name,port_desc,port_simnumber,port_network,port_disabled) VALUES ('/dev/cu.usbserial1','USBSERIAL#1','USB Serial/SMART/09287710253','09287710253','Smart/Talk N Text',0);
+INSERT INTO tbl_port (port_device,port_name,port_desc,port_simnumber,port_network,port_disabled) VALUES ('/dev/cu.usbserial2','USBSERIAL#2','USB Serial/SMART/09193453457','09193453457','Smart/Talk N Text',1);
+
+-- tbl_sim
+
+DROP SEQUENCE IF EXISTS tbl_sim_seq CASCADE;
+
+CREATE SEQUENCE tbl_sim_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_sim;
+
+CREATE TABLE tbl_sim (
+    sim_id bigint DEFAULT nextval(('tbl_sim_seq'::text)::regclass) NOT NULL,
+    sim_device character varying(20) DEFAULT ''::text NOT NULL,
+    sim_name character varying(20) DEFAULT ''::text NOT NULL,
+    sim_desc text DEFAULT ''::text NOT NULL,
+    sim_number character varying(20) DEFAULT ''::text NOT NULL,
+    sim_network character varying(20) DEFAULT ''::text NOT NULL,
+    sim_ip character varying(20) DEFAULT ''::text NOT NULL,
+    sim_disabled integer NOT NULL DEFAULT 0,
+    sim_deleted integer NOT NULL DEFAULT 0,
+    sim_status integer NOT NULL DEFAULT 0,
+    sim_online integer NOT NULL DEFAULT 0,
+    sim_menu integer NOT NULL DEFAULT 0,
+    sim_hotline integer NOT NULL DEFAULT 0,
+    sim_eload integer NOT NULL DEFAULT 0,
+    sim_flag integer NOT NULL DEFAULT 0,
+    sim_timestamp timestamp with time zone DEFAULT now(),
+    sim_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_sim ADD CONSTRAINT tbl_sim_primary_key PRIMARY KEY (sim_id);
+
+-- INSERT INTO tbl_sim (sim_device,sim_name,sim_number,sim_network) VALUES ('/dev/ttyS0','GLB09179823468','09179823468','Globe/Touch Mobile');
+
+-- tbl_log
+
+DROP SEQUENCE IF EXISTS tbl_log_seq CASCADE;
+
+CREATE SEQUENCE tbl_log_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_log;
+
+CREATE TABLE tbl_log (
+    log_id bigint DEFAULT nextval(('tbl_log_seq'::text)::regclass) NOT NULL,
+    log_text text DEFAULT ''::text NOT NULL,
+    log_module text DEFAULT ''::text NOT NULL,
+    log_deleted integer NOT NULL DEFAULT 0,
+    log_flag integer NOT NULL DEFAULT 0,
+    log_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_log ADD CONSTRAINT tbl_log_primary_key PRIMARY KEY (log_id);
+
+INSERT INTO tbl_log (log_text,log_result,log_portid) VALUES ('AT','Ok',1);
+
+-- tbl_atlog
+
+DROP SEQUENCE IF EXISTS tbl_atlog_seq CASCADE;
+
+CREATE SEQUENCE tbl_atlog_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_atlog;
+
+CREATE TABLE tbl_atlog (
+    atlog_id bigint DEFAULT nextval(('tbl_atlog_seq'::text)::regclass) NOT NULL,
+    atlog_text text DEFAULT ''::text NOT NULL,
+    atlog_module text DEFAULT ''::text NOT NULL,
+    atlog_device text DEFAULT ''::text NOT NULL,
+    atlog_sim text DEFAULT ''::text NOT NULL,
+    atlog_ip text DEFAULT ''::text NOT NULL,
+    atlog_date text DEFAULT ''::text NOT NULL,
+    atlog_deleted integer NOT NULL DEFAULT 0,
+    atlog_flag integer NOT NULL DEFAULT 0,
+    atlog_timestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_atlog ADD CONSTRAINT tbl_atlog_primary_key PRIMARY KEY (atlog_id);
+
+-- tbl_smscommands
+
+DROP SEQUENCE IF EXISTS tbl_smscommands_seq CASCADE;
+
+CREATE SEQUENCE tbl_smscommands_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_smscommands;
+
+CREATE TABLE tbl_smscommands (
+    smscommands_id bigint DEFAULT nextval(('tbl_smscommands_seq'::text)::regclass) NOT NULL,
+    smscommands_key0 text DEFAULT ''::text NOT NULL,
+    smscommands_key1 text DEFAULT ''::text NOT NULL,
+    smscommands_key2 text DEFAULT ''::text NOT NULL,
+    smscommands_key3 text DEFAULT ''::text NOT NULL,
+    smscommands_key4 text DEFAULT ''::text NOT NULL,
+    smscommands_key5 text DEFAULT ''::text NOT NULL,
+    smscommands_key6 text DEFAULT ''::text NOT NULL,
+    smscommands_key7 text DEFAULT ''::text NOT NULL,
+    smscommands_key8 text DEFAULT ''::text NOT NULL,
+    smscommands_key9 text DEFAULT ''::text NOT NULL,
+    smscommands_key0_optional integer NOT NULL DEFAULT 0,
+    smscommands_key1_optional integer NOT NULL DEFAULT 0,
+    smscommands_key2_optional integer NOT NULL DEFAULT 0,
+    smscommands_key3_optional integer NOT NULL DEFAULT 0,
+    smscommands_key4_optional integer NOT NULL DEFAULT 0,
+    smscommands_key5_optional integer NOT NULL DEFAULT 0,
+    smscommands_key6_optional integer NOT NULL DEFAULT 0,
+    smscommands_key7_optional integer NOT NULL DEFAULT 0,
+    smscommands_key8_optional integer NOT NULL DEFAULT 0,
+    smscommands_key9_optional integer NOT NULL DEFAULT 0,
+    smscommands_key0_error text DEFAULT ''::text NOT NULL,
+    smscommands_key1_error text DEFAULT ''::text NOT NULL,
+    smscommands_key2_error text DEFAULT ''::text NOT NULL,
+    smscommands_key3_error text DEFAULT ''::text NOT NULL,
+    smscommands_key4_error text DEFAULT ''::text NOT NULL,
+    smscommands_key5_error text DEFAULT ''::text NOT NULL,
+    smscommands_key6_error text DEFAULT ''::text NOT NULL,
+    smscommands_key7_error text DEFAULT ''::text NOT NULL,
+    smscommands_key8_error text DEFAULT ''::text NOT NULL,
+    smscommands_key9_error text DEFAULT ''::text NOT NULL,
+    smscommands_action0 text DEFAULT ''::text NOT NULL,
+    smscommands_action1 text DEFAULT ''::text NOT NULL,
+    smscommands_action2 text DEFAULT ''::text NOT NULL,
+    smscommands_action3 text DEFAULT ''::text NOT NULL,
+    smscommands_action4 text DEFAULT ''::text NOT NULL,
+    smscommands_action5 text DEFAULT ''::text NOT NULL,
+    smscommands_action6 text DEFAULT ''::text NOT NULL,
+    smscommands_action7 text DEFAULT ''::text NOT NULL,
+    smscommands_action8 text DEFAULT ''::text NOT NULL,
+    smscommands_action9 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms0 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms1 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms2 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms3 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms4 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms5 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms6 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms7 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms8 text DEFAULT ''::text NOT NULL,
+    smscommands_sendsms9 text DEFAULT ''::text NOT NULL,
+    smscommands_network text DEFAULT ''::text NOT NULL,
+    smscommands_simassignment text DEFAULT ''::text NOT NULL,
+    smscommands_active integer NOT NULL DEFAULT 0,
+    smscommands_flag integer NOT NULL DEFAULT 0,
+    smscommands_createstamp timestamp with time zone DEFAULT now(),
+    smscommands_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_smscommands ADD CONSTRAINT tbl_smscommands_primary_key PRIMARY KEY (smscommands_id);
+
+INSERT INTO tbl_smscommands (smscommands_key0,smscommands_key1,smscommands_key2,smscommands_key0_error,smscommands_key1_error,smscommands_key2_error,smscommands_active) VALUES ('$KEY_QLOAD','$PRODUCT_SMART300','$MOBILENUMBER','$INVALID_KEYWORD','$INVALID_PRODUCTCODE','$INVALID_MOBILENUMBER',1);
+INSERT INTO tbl_smscommands (smscommands_key0,smscommands_key1,smscommands_key2,smscommands_key0_error,smscommands_key1_error,smscommands_key2_error,smscommands_active) VALUES ('$KEY_QLOAD','$PRODUCT_SMART500','$MOBILENUMBER','$INVALID_KEYWORD','$INVALID_PRODUCTCODE','$INVALID_MOBILENUMBER',1);
+
+-- tbl_smsactions
+
+DROP SEQUENCE IF EXISTS tbl_smsactions_seq CASCADE;
+
+CREATE SEQUENCE tbl_smsactions_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_smsactions;
+
+CREATE TABLE tbl_smsactions (
+    smsactions_id bigint DEFAULT nextval(('tbl_smsactions_seq'::text)::regclass) NOT NULL,
+    smsactions_smscommandsid integer NOT NULL DEFAULT 0,
+    smsactions_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    smsactions_action text DEFAULT ''::text NOT NULL,
+    smsactions_disabled integer NOT NULL DEFAULT 0,
+    smsactions_deleted integer NOT NULL DEFAULT 0,
+    smsactions_flag integer NOT NULL DEFAULT 0,
+    smsactions_createstamp timestamp with time zone DEFAULT now(),
+    smsactions_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_smsactions ADD CONSTRAINT tbl_smsactions_primary_key PRIMARY KEY (smsactions_id);
+
+-- tbl_modemcommands
+
+DROP SEQUENCE IF EXISTS tbl_modemcommands_seq CASCADE;
+
+CREATE SEQUENCE tbl_modemcommands_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_modemcommands;
+
+CREATE TABLE tbl_modemcommands (
+    modemcommands_id bigint DEFAULT nextval(('tbl_modemcommands_seq'::text)::regclass) NOT NULL,
+    modemcommands_name text DEFAULT ''::text NOT NULL,
+    modemcommands_desc text DEFAULT ''::text NOT NULL,
+    modemcommands_disabled integer NOT NULL DEFAULT 0,
+    modemcommands_deleted integer NOT NULL DEFAULT 0,
+    modemcommands_flag integer NOT NULL DEFAULT 0,
+    modemcommands_createstamp timestamp with time zone DEFAULT now(),
+    modemcommands_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_modemcommands ADD CONSTRAINT tbl_modemcommands_primary_key PRIMARY KEY (modemcommands_id);
+
+INSERT INTO tbl_modemcommands (modemcommands_name,modemcommands_desc) VALUES ('$SMARTLOAD_SXX','This is a sample description.');
+
+-- tbl_atcommands
+
+DROP SEQUENCE IF EXISTS tbl_atcommands_seq CASCADE;
+
+CREATE SEQUENCE tbl_atcommands_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_atcommands;
+
+CREATE TABLE tbl_atcommands (
+    atcommands_id bigint DEFAULT nextval(('tbl_atcommands_seq'::text)::regclass) NOT NULL,
+    atcommands_modemcommandsid integer NOT NULL DEFAULT 0,
+    atcommands_at text DEFAULT ''::text NOT NULL,
+    atcommands_regx0 text DEFAULT ''::text NOT NULL,
+    atcommands_regx1 text DEFAULT ''::text NOT NULL,
+    atcommands_regx2 text DEFAULT ''::text NOT NULL,
+    atcommands_regx3 text DEFAULT ''::text NOT NULL,
+    atcommands_regx4 text DEFAULT ''::text NOT NULL,
+    atcommands_regx5 text DEFAULT ''::text NOT NULL,
+    atcommands_regx6 text DEFAULT ''::text NOT NULL,
+    atcommands_regx7 text DEFAULT ''::text NOT NULL,
+    atcommands_regx8 text DEFAULT ''::text NOT NULL,
+    atcommands_regx9 text DEFAULT ''::text NOT NULL,
+    atcommands_resultindex integer NOT NULL DEFAULT 0,
+    atcommands_expectedresult text DEFAULT ''::text NOT NULL,
+    atcommands_repeat integer NOT NULL DEFAULT 0,
+    atcommands_disabled integer NOT NULL DEFAULT 0,
+    atcommands_deleted integer NOT NULL DEFAULT 0,
+    atcommands_flag integer NOT NULL DEFAULT 0,
+    atcommands_createstamp timestamp with time zone DEFAULT now(),
+    atcommands_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_atcommands ADD CONSTRAINT tbl_atcommands_primary_key PRIMARY KEY (atcommands_id);
+
+INSERT INTO tbl_atcommands (atcommands_modemcommandsid,atcommands_at,atcommands_regx0,atcommands_resultindex,atcommands_expectedresult,atcommands_repeat) VALUES (1,'AT','$REGEX_OK',1,'OK',5);
+INSERT INTO tbl_atcommands (atcommands_modemcommandsid,atcommands_at,atcommands_regx0,atcommands_resultindex,atcommands_expectedresult,atcommands_repeat) VALUES (1,'AT+CNUM','$REGEX_OK',1,'OK',5);
+INSERT INTO tbl_atcommands (atcommands_modemcommandsid,atcommands_at,atcommands_regx0,atcommands_resultindex,atcommands_expectedresult,atcommands_repeat) VALUES (1,'AT+CMGF=0','$REGEX_OK',1,'OK',5);
+
+-- tbl_loadtransaction
+
+DROP SEQUENCE IF EXISTS tbl_loadtransaction_seq CASCADE;
+
+CREATE SEQUENCE tbl_loadtransaction_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_loadtransaction;
+
+CREATE TABLE tbl_loadtransaction (
+    loadtransaction_id bigint DEFAULT nextval(('tbl_loadtransaction_seq'::text)::regclass) NOT NULL,
+    loadtransaction_smsinboxid integer NOT NULL DEFAULT 0,
+    loadtransaction_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    loadtransaction_recipientnumber character varying(20) DEFAULT ''::text NOT NULL,
+    loadtransaction_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    loadtransaction_simhotline character varying(20) DEFAULT ''::text NOT NULL,
+    loadtransaction_keyword text DEFAULT ''::text NOT NULL,
+    loadtransaction_confirmation text DEFAULT ''::text NOT NULL,
+    loadtransaction_smsaction text DEFAULT ''::text NOT NULL,
+    loadtransaction_ref text DEFAULT ''::text NOT NULL,
+    loadtransaction_product text DEFAULT ''::text NOT NULL,
+    loadtransaction_productcode text DEFAULT ''::text NOT NULL,
+    loadtransaction_amount integer NOT NULL DEFAULT 0,
+    loadtransaction_balance numeric NOT NULL DEFAULT 0,
+    loadtransaction_completed integer NOT NULL DEFAULT 0,
+    loadtransaction_status integer NOT NULL DEFAULT 0,
+    loadtransaction_disabled integer NOT NULL DEFAULT 0,
+    loadtransaction_deleted integer NOT NULL DEFAULT 0,
+    loadtransaction_invalid integer NOT NULL DEFAULT 0,
+    loadtransaction_attempt integer NOT NULL DEFAULT 0,
+    loadtransaction_flag integer NOT NULL DEFAULT 0,
+    loadtransaction_createstamp timestamp with time zone DEFAULT now(),
+    loadtransaction_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_loadtransaction ADD CONSTRAINT tbl_loadtransaction_primary_key PRIMARY KEY (loadtransaction_id);
+
+-- tbl_promos
+
+DROP SEQUENCE IF EXISTS tbl_promos_seq CASCADE;
+
+CREATE SEQUENCE tbl_promos_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_promos;
+
+CREATE TABLE tbl_promos (
+    promos_id bigint DEFAULT nextval(('tbl_promos_seq'::text)::regclass) NOT NULL,
+    promos_title text DEFAULT ''::text NOT NULL,
+    promos_desc text DEFAULT ''::text NOT NULL,
+    promos_sms text DEFAULT ''::text NOT NULL,
+    promos_startdate text DEFAULT ''::text NOT NULL,
+    promos_enddate text DEFAULT ''::text NOT NULL,
+    promos_referral integer NOT NULL DEFAULT 0,
+    promos_status integer NOT NULL DEFAULT 0,
+    promos_disabled integer NOT NULL DEFAULT 0,
+    promos_flag integer NOT NULL DEFAULT 0,
+    promos_createstamp timestamp with time zone DEFAULT now(),
+    promos_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_promos ADD CONSTRAINT tbl_promos_primary_key PRIMARY KEY (promos_id);
+
+-- tbl_promossent
+
+DROP SEQUENCE IF EXISTS tbl_promossent_seq CASCADE;
+
+CREATE SEQUENCE tbl_promossent_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_promossent;
+
+CREATE TABLE tbl_promossent (
+    promossent_id bigint DEFAULT nextval(('tbl_promossent_seq'::text)::regclass) NOT NULL,
+    promossent_contactid bigint NOT NULL DEFAULT 0,
+    promossent_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    promossent_title text DEFAULT ''::text NOT NULL,
+    promossent_desc text DEFAULT ''::text NOT NULL,
+    promossent_sms text DEFAULT ''::text NOT NULL,
+    promossent_promocode text DEFAULT ''::text NOT NULL,
+    promossent_startdate text DEFAULT ''::text NOT NULL,
+    promossent_enddate text DEFAULT ''::text NOT NULL,
+    promossent_referral integer NOT NULL DEFAULT 0,
+    promossent_referredby character varying(20) DEFAULT ''::text NOT NULL,
+    promossent_status integer NOT NULL DEFAULT 0,
+    promossent_disabled integer NOT NULL DEFAULT 0,
+    promossent_flag integer NOT NULL DEFAULT 0,
+    promossent_timestamp timestamp with time zone DEFAULT now(),
+    promossent_sentstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_promossent ADD CONSTRAINT tbl_promossent_primary_key PRIMARY KEY (promossent_id);
+
+CREATE UNIQUE INDEX indx_promossent_promocode ON tbl_promossent USING btree (promossent_promocode);
+
+-- tbl_promocodes
+
+DROP SEQUENCE IF EXISTS tbl_promocodes_seq CASCADE;
+
+CREATE SEQUENCE tbl_promocodes_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_promocodes;
+
+CREATE TABLE tbl_promocodes (
+    promocodes_id bigint DEFAULT nextval(('tbl_promocodes_seq'::text)::regclass) NOT NULL,
+    promocodes_promocode text DEFAULT ''::text NOT NULL,
+    promocodes_contactid bigint NOT NULL DEFAULT 0,
+    promocodes_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    promocodes_startdate text DEFAULT ''::text NOT NULL,
+    promocodes_enddate text DEFAULT ''::text NOT NULL,
+    promocodes_referral integer NOT NULL DEFAULT 0,
+    promocodes_status integer NOT NULL DEFAULT 0,
+    promocodes_expired integer NOT NULL DEFAULT 0,
+    promocodes_claimed integer NOT NULL DEFAULT 0,
+    promocodes_deleted integer NOT NULL DEFAULT 0,
+    promocodes_disabled integer NOT NULL DEFAULT 0,
+    promocodes_flag integer NOT NULL DEFAULT 0,
+    promocodes_timestamp timestamp with time zone DEFAULT now(),
+    promocodes_claimstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_promocodes ADD CONSTRAINT tbl_promocodes_primary_key PRIMARY KEY (promocodes_id);
+
+CREATE UNIQUE INDEX indx_promocodes_promocode ON tbl_promocodes USING btree (promocodes_promocode);
+
+-- tbl_eloadproduct
+
+DROP SEQUENCE IF EXISTS tbl_eloadproduct_seq CASCADE;
+
+CREATE SEQUENCE tbl_eloadproduct_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_eloadproduct;
+
+CREATE TABLE tbl_eloadproduct (
+    eloadproduct_id bigint DEFAULT nextval(('tbl_eloadproduct_seq'::text)::regclass) NOT NULL,
+    eloadproduct_code text DEFAULT ''::text NOT NULL,
+    eloadproduct_desc text DEFAULT ''::text NOT NULL,
+    eloadproduct_provider character varying(20) DEFAULT ''::text NOT NULL,
+    eloadproduct_cost numeric NOT NULL DEFAULT 0.00,
+    eloadproduct_status integer NOT NULL DEFAULT 0,
+    eloadproduct_disabled integer NOT NULL DEFAULT 0,
+    eloadproduct_flag integer NOT NULL DEFAULT 0,
+    eloadproduct_createstamp timestamp with time zone DEFAULT now(),
+    eloadproduct_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_eloadproduct ADD CONSTRAINT tbl_eloadproduct_primary_key PRIMARY KEY (eloadproduct_id);
+
+CREATE UNIQUE INDEX indx_eloadproduct_code ON tbl_eloadproduct USING btree (eloadproduct_code);
+
+-- tbl_eloadtransaction
+
+DROP SEQUENCE IF EXISTS tbl_eloadtransaction_seq CASCADE;
+
+CREATE SEQUENCE tbl_eloadtransaction_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_eloadtransaction;
+
+CREATE TABLE tbl_eloadtransaction (
+    eloadtransaction_id bigint DEFAULT nextval(('tbl_eloadtransaction_seq'::text)::regclass) NOT NULL,
+    eloadtransaction_productcode text DEFAULT ''::text NOT NULL,
+    eloadtransaction_productdesc text DEFAULT ''::text NOT NULL,
+    eloadtransaction_message text DEFAULT ''::text NOT NULL,
+    eloadtransaction_confirmation text DEFAULT ''::text NOT NULL,
+    eloadtransaction_reference text DEFAULT ''::text NOT NULL,
+    eloadtransaction_provider character varying(20) DEFAULT ''::text NOT NULL,
+    eloadtransaction_mobileno character varying(20) DEFAULT ''::text NOT NULL,
+    eloadtransaction_simnumber character varying(20) DEFAULT ''::text NOT NULL,
+    eloadtransaction_gateway character varying(20) DEFAULT ''::text NOT NULL,
+    eloadtransaction_cost numeric NOT NULL DEFAULT 0.00,
+    eloadtransaction_actualcost numeric NOT NULL DEFAULT 0.00,
+    eloadtransaction_balance numeric NOT NULL DEFAULT 0.00,
+    eloadtransaction_completed integer NOT NULL DEFAULT 0,
+    eloadtransaction_attempt integer NOT NULL DEFAULT 0,
+    eloadtransaction_status integer NOT NULL DEFAULT 0,
+    eloadtransaction_disabled integer NOT NULL DEFAULT 0,
+    eloadtransaction_flag integer NOT NULL DEFAULT 0,
+    eloadtransaction_createstamp timestamp with time zone DEFAULT now(),
+    eloadtransaction_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_eloadtransaction ADD CONSTRAINT tbl_eloadtransaction_primary_key PRIMARY KEY (eloadtransaction_id);
+
+-- tbl_scheduler
+
+DROP SEQUENCE IF EXISTS tbl_scheduler_seq CASCADE;
+
+CREATE SEQUENCE tbl_scheduler_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_scheduler;
+
+CREATE TABLE tbl_scheduler (
+    scheduler_id bigint DEFAULT nextval(('tbl_scheduler_seq'::text)::regclass) NOT NULL,
+    scheduler_title text DEFAULT ''::text NOT NULL,
+    scheduler_desc text DEFAULT ''::text NOT NULL,
+    scheduler_sms text DEFAULT ''::text NOT NULL,
+    scheduler_status integer NOT NULL DEFAULT 0,
+    scheduler_disabled integer NOT NULL DEFAULT 0,
+    scheduler_flag integer NOT NULL DEFAULT 0,
+    scheduler_createstamp timestamp with time zone DEFAULT now(),
+    scheduler_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_scheduler ADD CONSTRAINT tbl_scheduler_primary_key PRIMARY KEY (scheduler_id);
+
+-- tbl_schedulersent
+
+DROP SEQUENCE IF EXISTS tbl_schedulersent_seq CASCADE;
+
+CREATE SEQUENCE tbl_schedulersent_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_schedulersent;
+
+CREATE TABLE tbl_schedulersent (
+    schedulersent_id bigint DEFAULT nextval(('tbl_schedulersent_seq'::text)::regclass) NOT NULL,
+    schedulersent_contactid bigint NOT NULL DEFAULT 0,
+    schedulersent_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    schedulersent_title text DEFAULT ''::text NOT NULL,
+    schedulersent_desc text DEFAULT ''::text NOT NULL,
+    schedulersent_sms text DEFAULT ''::text NOT NULL,
+    schedulersent_sentdate text DEFAULT ''::text NOT NULL,
+    schedulersent_status integer NOT NULL DEFAULT 0,
+    schedulersent_disabled integer NOT NULL DEFAULT 0,
+    schedulersent_flag integer NOT NULL DEFAULT 0,
+    schedulersent_timestamp timestamp with time zone DEFAULT now(),
+    schedulersent_sentstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_schedulersent ADD CONSTRAINT tbl_schedulersent_primary_key PRIMARY KEY (schedulersent_id);
+
+-- tbl_referral
+
+DROP SEQUENCE IF EXISTS tbl_referral_seq CASCADE;
+
+CREATE SEQUENCE tbl_referral_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_referral;
+
+CREATE TABLE tbl_referral (
+    referral_id bigint DEFAULT nextval(('tbl_referral_seq'::text)::regclass) NOT NULL,
+    referral_title text DEFAULT ''::text NOT NULL,
+    referral_desc text DEFAULT ''::text NOT NULL,
+    referral_sms text DEFAULT ''::text NOT NULL,
+    referral_template integer NOT NULL DEFAULT 0,
+    referral_status integer NOT NULL DEFAULT 0,
+    referral_disabled integer NOT NULL DEFAULT 0,
+    referral_flag integer NOT NULL DEFAULT 0,
+    referral_createstamp timestamp with time zone DEFAULT now(),
+    referral_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_referral ADD CONSTRAINT tbl_referral_primary_key PRIMARY KEY (referral_id);
+
+-- tbl_referralsent
+
+DROP SEQUENCE IF EXISTS tbl_referralsent_seq CASCADE;
+
+CREATE SEQUENCE tbl_referralsent_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_referralsent;
+
+CREATE TABLE tbl_referralsent (
+    referralsent_id bigint DEFAULT nextval(('tbl_referralsent_seq'::text)::regclass) NOT NULL,
+    referralsent_contactid bigint NOT NULL DEFAULT 0,
+    referralsent_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    referralsent_title text DEFAULT ''::text NOT NULL,
+    referralsent_desc text DEFAULT ''::text NOT NULL,
+    referralsent_sms text DEFAULT ''::text NOT NULL,
+    referralsent_referralcode text DEFAULT ''::text NOT NULL,
+    referralsent_referredby character varying(20) DEFAULT ''::text NOT NULL,
+    referralsent_status integer NOT NULL DEFAULT 0,
+    referralsent_disabled integer NOT NULL DEFAULT 0,
+    referralsent_flag integer NOT NULL DEFAULT 0,
+    referralsent_timestamp timestamp with time zone DEFAULT now(),
+    referralsent_sentstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_referralsent ADD CONSTRAINT tbl_referralsent_primary_key PRIMARY KEY (referralsent_id);
+
+CREATE UNIQUE INDEX indx_referralsent_referralcode ON tbl_referralsent USING btree (referralsent_referralcode);
+
+-- tbl_referralcode
+
+DROP SEQUENCE IF EXISTS tbl_referralcode_seq CASCADE;
+
+CREATE SEQUENCE tbl_referralcode_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_referralcode;
+
+CREATE TABLE tbl_referralcode (
+    referralcode_id bigint DEFAULT nextval(('tbl_referralcode_seq'::text)::regclass) NOT NULL,
+    referralcode_referralcode text DEFAULT ''::text NOT NULL,
+    referralcode_contactid bigint NOT NULL DEFAULT 0,
+    referralcode_contactnumber character varying(20) DEFAULT ''::text NOT NULL,
+    referralcode_status integer NOT NULL DEFAULT 0,
+    referralcode_expired integer NOT NULL DEFAULT 0,
+    referralcode_claimed integer NOT NULL DEFAULT 0,
+    referralcode_deleted integer NOT NULL DEFAULT 0,
+    referralcode_disabled integer NOT NULL DEFAULT 0,
+    referralcode_flag integer NOT NULL DEFAULT 0,
+    referralcode_timestamp timestamp with time zone DEFAULT now(),
+    referralcode_claimstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_referralcode ADD CONSTRAINT tbl_referralcode_primary_key PRIMARY KEY (referralcode_id);
+
+CREATE UNIQUE INDEX indx_referralcode_referralcode ON tbl_referralcode USING btree (referralcode_referralcode);
+
+-- tbl_fcm
+
+DROP SEQUENCE IF EXISTS tbl_fcm_seq CASCADE;
+
+CREATE SEQUENCE tbl_fcm_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_fcm;
+
+CREATE TABLE tbl_fcm (
+    fcm_id bigint DEFAULT nextval(('tbl_fcm_seq'::text)::regclass) NOT NULL,
+    fcm_rfid text DEFAULT ''::text NOT NULL,
+    fcm_token text DEFAULT ''::text NOT NULL,
+    fcm_flag integer NOT NULL DEFAULT 0,
+    fcm_createstamp timestamp with time zone DEFAULT now(),
+    fcm_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_fcm ADD CONSTRAINT tbl_fcm_primary_key PRIMARY KEY (fcm_id);
+
+CREATE UNIQUE INDEX indx_fcm_rfid ON tbl_fcm USING btree (fcm_rfid);
+
+-- tbl_notifications
+
+DROP SEQUENCE IF EXISTS tbl_notifications_seq CASCADE;
+
+CREATE SEQUENCE tbl_notifications_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_notifications;
+
+CREATE TABLE tbl_notifications (
+    notifications_id bigint DEFAULT nextval(('tbl_notifications_seq'::text)::regclass) NOT NULL,
+    notifications_hash text DEFAULT ''::text NOT NULL,
+    notifications_rfid text DEFAULT ''::text NOT NULL,
+    notifications_from text DEFAULT ''::text NOT NULL,
+    notifications_topic text DEFAULT ''::text NOT NULL,
+    notifications_title text DEFAULT ''::text NOT NULL,
+    notifications_body text DEFAULT ''::text NOT NULL,
+    notifications_content text DEFAULT ''::text NOT NULL,
+    notifications_flag integer NOT NULL DEFAULT 0,
+    notifications_unixtime integer NOT NULL DEFAULT 0,
+    notifications_createstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_notifications ADD CONSTRAINT tbl_notifications_primary_key PRIMARY KEY (notifications_id);
+
+-- tbl_groupref
+-- groupref_type (1-studentsection, 2-studentyearlevel, 3-employeedepartment, 4-employeeposition)
+
+DROP SEQUENCE IF EXISTS tbl_groupref_seq CASCADE;
+
+CREATE SEQUENCE tbl_groupref_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_groupref;
+
+CREATE TABLE tbl_groupref (
+    groupref_id bigint DEFAULT nextval(('tbl_groupref_seq'::text)::regclass) NOT NULL,
+    groupref_seq integer NOT NULL DEFAULT 0,
+    groupref_yearlevel text DEFAULT ''::text NOT NULL,
+    groupref_name text DEFAULT ''::text NOT NULL,
+    groupref_starttime text DEFAULT ''::text NOT NULL,
+    groupref_endtime text DEFAULT ''::text NOT NULL,
+    groupref_type integer NOT NULL DEFAULT 0,
+    groupref_flag integer NOT NULL DEFAULT 0,
+    groupref_disabled integer NOT NULL DEFAULT 0,
+    groupref_deleted integer NOT NULL DEFAULT 0,
+    groupref_createstamp timestamp with time zone DEFAULT now(),
+    groupref_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_groupref ADD CONSTRAINT tbl_groupref_primary_key PRIMARY KEY (groupref_id);
+
+-- tbl_testing
+
+DROP SEQUENCE IF EXISTS tbl_testing_seq CASCADE;
+
+CREATE SEQUENCE tbl_testing_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_testing;
+
+CREATE TABLE tbl_testing (
+    testing_id bigint DEFAULT nextval(('tbl_testing_seq'::text)::regclass) NOT NULL,
+    testing_hash text DEFAULT ''::text NOT NULL,
+    testing_createstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_testing ADD CONSTRAINT tbl_testing_primary_key PRIMARY KEY (testing_id);
+
+insert into tbl_testing (testing_hash) values (12345);
+delete from tbl_testing where testing_id=1;
+insert into tbl_testing (testing_id,testing_hash) values (1,12345);
+
+-- tbl_studentprofile
+
+DROP SEQUENCE IF EXISTS tbl_studentprofile_seq CASCADE;
+
+CREATE SEQUENCE tbl_studentprofile_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_studentprofile;
+
+CREATE TABLE tbl_studentprofile (
+    studentprofile_id bigint DEFAULT nextval(('tbl_studentprofile_seq'::text)::regclass) NOT NULL,
+    studentprofile_number text DEFAULT ''::text NOT NULL,
+    studentprofile_rfid text DEFAULT ''::text NOT NULL,
+    studentprofile_firstname text DEFAULT ''::text NOT NULL,
+    studentprofile_lastname text DEFAULT ''::text NOT NULL,
+    studentprofile_middlename text DEFAULT ''::text NOT NULL,
+    studentprofile_birthdate text DEFAULT ''::text NOT NULL,
+    studentprofile_yearlevel text DEFAULT ''::text NOT NULL,
+    studentprofile_guardianname text DEFAULT ''::text NOT NULL,
+    studentprofile_guardianmobileno text DEFAULT ''::text NOT NULL,
+    studentprofile_guardianemail text DEFAULT ''::text NOT NULL,
+    studentprofile_section text DEFAULT ''::text NOT NULL,
+    studentprofile_db integer NOT NULL DEFAULT 0,
+    studentprofile_in integer NOT NULL DEFAULT 0,
+    studentprofile_out integer NOT NULL DEFAULT 0,
+    studentprofile_late integer NOT NULL DEFAULT 0,
+    studentprofile_active integer NOT NULL DEFAULT 0,
+    studentprofile_deleted integer NOT NULL DEFAULT 0,
+    studentprofile_flag integer NOT NULL DEFAULT 0,
+    studentprofile_updatestamp timestamp with time zone DEFAULT now(),
+    studentprofile_createstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_studentprofile ADD CONSTRAINT tbl_studentprofile_primary_key PRIMARY KEY (studentprofile_id);
+
+
+-- tbl_upload
+
+-- sherwint_eshop=# \d tbl_upload
+--                                           Table "public.tbl_upload"
+--        Column       |           Type           |                          Modifiers
+--------------------+--------------------------+--------------------------------------------------------------
+--  upload_id          | bigint                   | not null default nextval(('tbl_upload_seq'::text)::regclass)
+--  upload_sid         | character varying(40)    | not null default ''::text
+--  upload_customerid  | integer                  | not null default 0
+--  upload_name        | text                     | not null default ''::text
+--  upload_content     | text                     | not null default ''::text
+--  upload_type        | text                     | not null default ''::text
+--  upload_size        | integer                  | not null default 0
+--  upload_temp        | integer                  | not null default 0
+--  upload_deleted     | integer                  | not null default 0
+--  upload_flag        | integer                  | not null default 0
+--  upload_createstamp | timestamp with time zone | default now()
+--  upload_updatestamp | timestamp with time zone | default now()
+--  upload_supplierid  | integer                  | not null default 0
+-- Indexes:
+--     "tbl_upload_primary_key" PRIMARY KEY, btree (upload_id)
+
+DROP SEQUENCE IF EXISTS tbl_upload_seq CASCADE;
+
+CREATE SEQUENCE tbl_upload_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_upload;
+
+CREATE TABLE tbl_upload (
+    upload_id bigint DEFAULT nextval(('tbl_upload_seq'::text)::regclass) NOT NULL,
+    upload_sid text DEFAULT ''::text NOT NULL,
+    upload_studentprofileid integer NOT NULL DEFAULT 0,
+    upload_name text DEFAULT ''::text NOT NULL,
+    upload_content text DEFAULT ''::text NOT NULL,
+    upload_type text DEFAULT ''::text NOT NULL,
+    upload_size integer NOT NULL DEFAULT 0,
+    upload_temp integer NOT NULL DEFAULT 0,
+    upload_deleted integer NOT NULL DEFAULT 0,
+    upload_flag integer NOT NULL DEFAULT 0,
+    upload_createstamp timestamp with time zone DEFAULT now(),
+    upload_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_upload ADD CONSTRAINT tbl_upload_primary_key PRIMARY KEY (upload_id);
+
+select upload_id,upload_sid,upload_studentprofileid,upload_name,upload_type,upload_size,upload_temp,upload_createstamp from tbl_upload;
+
+-- tbl_studentdtr
+
+DROP SEQUENCE IF EXISTS tbl_studentdtr_seq CASCADE;
+
+CREATE SEQUENCE tbl_studentdtr_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_studentdtr;
+
+CREATE TABLE tbl_studentdtr (
+    studentdtr_id bigint DEFAULT nextval(('tbl_studentdtr_seq'::text)::regclass) NOT NULL,
+    studentdtr_studentid integer NOT NULL DEFAULT 0,
+    studentdtr_studentrfid text DEFAULT ''::text NOT NULL,
+    studentdtr_unixtime integer NOT NULL DEFAULT 0,
+    studentdtr_type text DEFAULT ''::text NOT NULL,
+    studentdtr_sentsms integer NOT NULL DEFAULT 0,
+    studentdtr_sentnotification integer NOT NULL DEFAULT 0,
+    studentdtr_active integer NOT NULL DEFAULT 0,
+    studentdtr_deleted integer NOT NULL DEFAULT 0,
+    studentdtr_flag integer NOT NULL DEFAULT 0,
+    studentdtr_createstamp timestamp with time zone DEFAULT now()
+);
+
+-- tbl_rfidqueue
+
+DROP SEQUENCE IF EXISTS tbl_rfidqueue_seq CASCADE;
+
+CREATE SEQUENCE tbl_rfidqueue_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_rfidqueue;
+
+CREATE TABLE tbl_rfidqueue (
+    rfidqueue_id bigint DEFAULT nextval(('tbl_rfidqueue_seq'::text)::regclass) NOT NULL,
+    rfidqueue_rfid text DEFAULT ''::text NOT NULL,
+    rfidqueue_active integer NOT NULL DEFAULT 0,
+    rfidqueue_deleted integer NOT NULL DEFAULT 0,
+    rfidqueue_flag integer NOT NULL DEFAULT 0,
+    rfidqueue_createstamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_rfidqueue ADD CONSTRAINT tbl_rfidqueue_primary_key PRIMARY KEY (rfidqueue_id);
+
+alter table tbl_studentprofile add column studentprofile_db integer NOT NULL DEFAULT 0;
+alter table tbl_studentprofile add column studentprofile_in integer NOT NULL DEFAULT 0;
+alter table tbl_studentprofile add column studentprofile_out integer NOT NULL DEFAULT 0;
+alter table tbl_studentprofile add column studentprofile_late integer NOT NULL DEFAULT 0;
+
+alter table tbl_studentprofile add column studentprofile_schoolyear text DEFAULT ''::text NOT NULL;
+alter table tbl_studentprofile add column studentprofile_schoolyearstart integer NOT NULL DEFAULT 0;
+alter table tbl_studentprofile add column studentprofile_schoolyearend integer NOT NULL DEFAULT 0;
+
+alter table tbl_studentprofile drop column studentprofile_schoolyear;
+
+alter table tbl_studentprofile add column studentprofile_sync integer NOT NULL DEFAULT 0;
+alter table tbl_studentprofile add column studentprofile_update integer NOT NULL DEFAULT 0;
+
+alter table tbl_studentdtr add column studentdtr_notified bigint NOT NULL DEFAULT 0;
+alter table tbl_studentdtr add column studentdtr_notifystamp timestamp with time zone DEFAULT now();
+alter table tbl_studentdtr add column studentdtr_late integer NOT NULL DEFAULT 0;
+alter table tbl_studentdtr add column studentdtr_tappedstamp timestamp with time zone DEFAULT now();
+
+alter table tbl_studentdtr drop column studentdtr_notified;
+
+alter table tbl_studentprofile alter column studentprofile_section drop default;
+alter table tbl_studentprofile alter column studentprofile_section type integer USING studentprofile_section::integer;
+alter table tbl_studentprofile alter column studentprofile_section set default 0;
+
+alter table tbl_studentprofile alter column studentprofile_yearlevel drop default;
+alter table tbl_studentprofile alter column studentprofile_yearlevel type integer USING studentprofile_yearlevel::integer;
+alter table tbl_studentprofile alter column studentprofile_yearlevel set default 0;
+
+CREATE UNIQUE INDEX indx_studentprofile_number ON tbl_studentprofile USING btree (studentprofile_number);
+CREATE UNIQUE INDEX indx_studentprofile_rfid ON tbl_studentprofile USING btree (studentprofile_rfid);
+
+alter table tbl_smsoutbox add column smsoutbox_sendpush integer NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_pushstatus integer NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_pushid bigint NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_pushcreatestamp timestamp with time zone DEFAULT now();
+alter table tbl_smsoutbox add column smsoutbox_pushsentstamp timestamp with time zone DEFAULT now();
+alter table tbl_smsoutbox add column smsoutbox_priority integer NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_failedstamp timestamp with time zone DEFAULT now();
+alter table tbl_smsoutbox add column smsoutbox_priority integer NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_latenoti integer NOT NULL DEFAULT 0;
+alter table tbl_smsoutbox add column smsoutbox_absentnoti integer NOT NULL DEFAULT 0;
+
+alter table tbl_users alter column user_email type text;
+alter table tbl_users alter column user_hash type text;
+alter table tbl_users alter column user_login type text;
+
+
+
+
+---

@@ -1,0 +1,8 @@
+<toolbar id="0">
+<item id="title" type="text" text="Medical Records"/>
+<item id="sep1" type="separator"/>
+<item img="add_connection.gif"  id="add_connection" type="button" text="Add connection"/>
+<item img="delete_connection.gif"  id="delete_connection" type="button" text="Delete connection"/>
+<item id="sep2" type="separator"/>
+<item img="sql_query.gif"  id="sql_query" type="button" text="SQL query"/>
+</toolbar>

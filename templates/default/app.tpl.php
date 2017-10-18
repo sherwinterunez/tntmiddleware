@@ -1,0 +1,1 @@
+<div id="appForm" style="height:auto;display:none;">this is app.tpl.php<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />hello!</div>
