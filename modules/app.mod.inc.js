@@ -175,16 +175,16 @@ srt.init = function(){
 			return false;
 		}
 
-		if(id=='etap') {
+		/*if(id=='etap') {
 			setTimeout(function(){
 				window.location = settings.site+'/tap/';
 			},500);
 			return false;
-		}
+		}*/
 
-		if(id=='utilities'||id=='secure'||id=='management'||id=='server'||id=='computer') {
+		/*if(id=='utilities'||id=='secure'||id=='management'||id=='server'||id=='computer') {
 			return false;
-		}
+		}*/
 
 		if(id=='start'||id=='stop'||id=='scan'||id=='restart'||id=='restartkiosk'||id=='reboot'||id=='poweroff') {
 			srt.doOnClick(id);
@@ -430,16 +430,10 @@ dhtmlXCellObject.prototype.defaultOnClick = function(id,formval,ret) {
 jQuery(document).ready(function($) {
 	srt.init();
 
-	setTimeout(function(){
+	/*setTimeout(function(){
 		srt.toolbar.doOnClick('tnt');
 
 		srt.checkStatus();
 
-		/*setInterval(function(){
-			if(!srt.checking) {
-				srt.checkStatus();
-			}
-		},10000);*/
-
-	},600);
+	},600);*/
 });

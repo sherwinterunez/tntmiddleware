@@ -462,6 +462,67 @@ CREATE TABLE tbl_network (
 ALTER TABLE ONLY tbl_network ADD CONSTRAINT tbl_network_primary_key PRIMARY KEY (network_id);
 CREATE UNIQUE INDEX indx_network_number ON tbl_network USING btree (network_number);
 
+-- tbl_pacsimage
+
+DROP SEQUENCE IF EXISTS tbl_pacsimage_seq CASCADE;
+
+CREATE SEQUENCE tbl_pacsimage_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_pacsimage;
+
+CREATE TABLE tbl_pacsimage (
+    pacsimage_id bigint DEFAULT nextval(('tbl_pacsimage_seq'::text)::regclass) NOT NULL,
+    pacsimage_connote text DEFAULT ''::text NOT NULL,
+    pacsimage_osdatafile text DEFAULT ''::text NOT NULL,
+    pacsimage_osdatapathfile text DEFAULT ''::text NOT NULL,
+    pacsimage_sectordatafile text DEFAULT ''::text NOT NULL,
+    pacsimage_sectordatapathfile text DEFAULT ''::text NOT NULL,
+    pacsimage_status integer NOT NULL DEFAULT 0,
+    pacsimage_deleted integer NOT NULL DEFAULT 0,
+    pacsimage_flag integer NOT NULL DEFAULT 0,
+    pacsimage_createstamp timestamp with time zone DEFAULT now(),
+    pacsimage_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_pacsimage ADD CONSTRAINT tbl_pacsimage_primary_key PRIMARY KEY (pacsimage_id);
+CREATE UNIQUE INDEX indx_pacsimage_connote ON tbl_pacsimage USING btree (pacsimage_connote);
+
+-- tbl_midlog
+
+DROP SEQUENCE IF EXISTS tbl_midlog_seq CASCADE;
+
+CREATE SEQUENCE tbl_midlog_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+DROP TABLE IF EXISTS tbl_midlog;
+
+CREATE TABLE tbl_midlog (
+    midlog_id bigint DEFAULT nextval(('tbl_midlog_seq'::text)::regclass) NOT NULL,
+    midlog_sourcehost text DEFAULT ''::text NOT NULL,
+    midlog_sourcefile text DEFAULT ''::text NOT NULL,
+    midlog_sourcepathfile text DEFAULT ''::text NOT NULL,
+    midlog_targethost text DEFAULT ''::text NOT NULL,
+    midlog_targetfile text DEFAULT ''::text NOT NULL,
+    midlog_targetpathfile text DEFAULT ''::text NOT NULL,
+    midlog_type integer NOT NULL DEFAULT 0,
+    midlog_status integer NOT NULL DEFAULT 0,
+    midlog_deleted integer NOT NULL DEFAULT 0,
+    midlog_flag integer NOT NULL DEFAULT 0,
+    midlog_createstamp timestamp with time zone DEFAULT now(),
+    midlog_updatestamp timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY tbl_midlog ADD CONSTRAINT tbl_midlog_primary_key PRIMARY KEY (midlog_id);
+
 INSERT INTO tbl_network (network_number,network_name) VALUES ('905','Globe/Touch Mobile');
 INSERT INTO tbl_network (network_number,network_name) VALUES ('906','Globe/Touch Mobile');
 INSERT INTO tbl_network (network_number,network_name) VALUES ('915','Globe/Touch Mobile');

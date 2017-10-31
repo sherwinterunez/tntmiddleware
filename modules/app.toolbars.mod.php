@@ -25,7 +25,7 @@ global $applogin;
 
 $toolbars['app']['main'] = array();
 
-$toolbars['app']['main'][] = array(	"id"=>"etap",
+/*$toolbars['app']['main'][] = array(	"id"=>"etap",
 			"type"=>"button",
 			"text"=>"eTap",
 			"img"=>"tap.png",
@@ -60,7 +60,7 @@ $toolbars['app']['main'][] = array(	"id"=>"messaging",
 			"tab_width" => 150,
 			"module" => "messaging",
 			"window" => true,
-	);
+	);*/
 
 	/*array(	"id"=>"message",
 			"type"=>"button",
@@ -85,7 +85,7 @@ $toolbars['app']['main'][] = array(	"id"=>"messaging",
 			"window" => true,
 	),*/
 
-$toolbars['app']['main'][] = array(	"id"=>"contact",
+/*$toolbars['app']['main'][] = array(	"id"=>"contact",
 			"type"=>"button",
 			"text"=>"Contacts",
 			"img"=>"contacts.png",
@@ -120,6 +120,18 @@ $toolbars['app']['main'][] = array(	"id"=>"report",
 			"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
 			"module" => "report",
 			"window" => true,
+	);*/
+
+$toolbars['app']['main'][] = array(	"id"=>"middleware",
+			"type"=>"button",
+			"text"=>"Middleware",
+			"img"=>"settings.png",
+			"imgdis"=>"settings.png",
+			"title"=>"Tooltip here",
+			"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+			"module" => "middleware",
+			"window" => true,
 	);
 
 $toolbars['app']['main'][] = array(	"id"=>"setting",
@@ -134,7 +146,7 @@ $toolbars['app']['main'][] = array(	"id"=>"setting",
 			"window" => true,
 	);
 
-if($applogin->isSysAdmin()&&checkLicense()&&isServerLicense()) {
+/*if($applogin->isSysAdmin()&&checkLicense()&&isServerLicense()) {
 	$toolbars['app']['main'][] = array(	"id"=>"management",
 			"type"=>"buttonSelect",
 			"text"=>"Management",
@@ -157,7 +169,7 @@ if($applogin->isSysAdmin()&&checkLicense()&&isServerLicense()) {
 				),
 		)
 	);
-}
+}*/
 
 	/*array(	"id"=>"backup",
 			"type"=>"button",
@@ -315,10 +327,10 @@ $toolbars['app']['main'][] = array(	"id"=>"title",
 			"text"=>$applogin->fullname(),
 	);
 
-$toolbars['app']['main'][] = array(	"id"=>"status",
+/*$toolbars['app']['main'][] = array(	"id"=>"status",
 			"type"=>"text",
 			"text"=>"Checking Server Status...",
-	);
+	);*/
 
 	/*array(	"id"=>"start",
 			"type"=>"button",
@@ -354,7 +366,7 @@ $toolbars['app']['main'][] = array(	"id"=>"status",
 			"multiple" => false,
 	),*/
 
-$toolbars['app']['main'][] = array(	"id"=>"server",
+/*$toolbars['app']['main'][] = array(	"id"=>"server",
 			"type"=>"buttonSelect",
 			"text"=>"Modem",
 			"img"=>"modem.png",
@@ -398,9 +410,9 @@ $toolbars['app']['main'][] = array(	"id"=>"server",
 						"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
 				),
 		)
-	);
+	);*/
 
-$toolbars['app']['main'][] = array(	"id"=>"computer",
+/*$toolbars['app']['main'][] = array(	"id"=>"computer",
 			"type"=>"buttonSelect",
 			"text"=>"Computer",
 			"img"=>"computer.png",
@@ -435,7 +447,7 @@ $toolbars['app']['main'][] = array(	"id"=>"computer",
 						"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
 				),
 		)
-	);
+	);*/
 
 $toolbars['app']['main'][] = array(	"id"=>"logout",
 			"type"=>"button",
@@ -785,6 +797,102 @@ $toolbars['app']['contact'] = array(
 			"title"=>"Tooltip here",
 			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
 			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+);
+
+$toolbars['app']['middleware'] = array(
+	array(	"id"=>"middlewarenew",
+			"type"=>"button",
+			"text"=>"New",
+			"img"=>"new.png",
+			"imgdis"=>"new_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewareedit",
+			"type"=>"button",
+			"text"=>"Edit",
+			"img"=>"edit.png",
+			"imgdis"=>"edit_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewaredelete",
+			"type"=>"button",
+			"text"=>"Delete",
+			"img"=>"delete.png",
+			"imgdis"=>"delete_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewaresave",
+			"type"=>"button",
+			"text"=>"Save",
+			"img"=>"disk.png",
+			"imgdis"=>"disk_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewarecancel",
+			"type"=>"button",
+			"text"=>"Cancel",
+			"img"=>"cancel.png",
+			"imgdis"=>"cancel_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewarerefresh",
+			"type"=>"button",
+			"text"=>"Refresh",
+			"img"=>"refresh.png",
+			"imgdis"=>"refresh_dis.png",
+			"title"=>"Tooltip here",
+			//"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			//"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+	),
+	array(	"id"=>"middlewarerefresh",
+			"type"=>"spacer",
+	),
+	array(	"id"=>"middlewarefrom",
+			"type"=>"text",
+			"text"=>"From",
+			"hidden"=>true,
+	),
+	array(	"id"=>"middlewaredatefrom",
+			"type"=>"input",
+			"text"=>"From",
+			"pos"=>0,
+			"value"=>"",
+			"width"=>90,
+			"img"=>"copy.gif",
+			"imgdis"=>"copy.gif",
+			"title"=>"Tooltip here",
+			"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+			"hidden"=>true,
+	),
+	array(	"id"=>"middlewareto",
+			"type"=>"text",
+			"text"=>"To",
+			"hidden"=>true,
+	),
+	array(	"id"=>"middlewaredateto",
+			"type"=>"input",
+			"text"=>"To",
+			"pos"=>0,
+			"value"=>"",
+			"width"=>90,
+			"img"=>"copy.gif",
+			"imgdis"=>"copy.gif",
+			"title"=>"Tooltip here",
+			"func"=>";(function(obj,id){srt.toolbar_func(obj,id);})(this,id);",
+			"func_tab_close"=>";(function(obj,id){srt.tabbar_close_func(obj,id);})(this,id);",
+			"hidden"=>true,
 	),
 );
 

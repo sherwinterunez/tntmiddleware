@@ -1,6 +1,6 @@
 <?php
 /*
-* 
+*
 * Author: Sherwin R. Terunez
 * Contact: sherwinterunez@yahoo.com
 *
@@ -104,7 +104,7 @@ function modemInit($dev=false,$mobileNo=false,$ip='',$baud=115200,$simMenu=false
 	} else return false;
 
 	echo "\ninit starting.\n";
- 
+
 	$sms = new APP_SMS;
 
 	$sms->dev = $dev;
@@ -362,11 +362,15 @@ function modemInit($dev=false,$mobileNo=false,$ip='',$baud=115200,$simMenu=false
 
 	$sms->sendMessageOk("AT+CSQ\r\n");
 
+	$sms->sendMessageOk('AT+CPMS="SM"'."\r\n");
+
 	//$sms->sendMessageOk("AT+CMGL=4\r\n");
 
 	//$sms->sendMessageOk("AT+STGI=0\r\n");
 
 	//$sms->sendMessageOk("AT+STIN?\r\n");
+
+	$sms->sendMessageOk("AT&W\r\n");
 
 	print_r($sms->history);
 
@@ -463,7 +467,7 @@ if(!empty($_GET['dev'])&&!empty($_GET['sim'])&&!empty($_GET['ip'])&&isSimEnabled
 		$flag = true;
 	} else
 	if($current>$timeopt) {
-		$flag = true;		
+		$flag = true;
 	}
 
 	if($flag) {
@@ -474,12 +478,9 @@ if(!empty($_GET['dev'])&&!empty($_GET['sim'])&&!empty($_GET['ip'])&&isSimEnabled
 		if(modemInit($_GET['dev'],$_GET['sim'],$_GET['ip'])) {
 			setSetting('STATUS_MODEMINIT_'.$_GET['sim'],'0'); // idle
 		} else {
-			setSetting('STATUS_MODEMINIT_'.$_GET['sim'],'2'); // error	
+			setSetting('STATUS_MODEMINIT_'.$_GET['sim'],'2'); // error
 		}
 
 		setSetting('TIME_MODEMINIT_'.$_GET['sim'],time());
 	}
 }
-
-
-

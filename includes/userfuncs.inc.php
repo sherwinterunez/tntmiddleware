@@ -2952,6 +2952,513 @@ function doModemCommands($sms=false,$mobileNo=false) {
 	return true;
 }
 
+///-----------------------------------------------------------------------------
+
+function getLoadTransactionStatusString($status=0) {
+	global $_CONSTANTS;
+
+	if(!empty($status)&&!empty($_CONSTANTS['STATUS'][$status])) {
+		return $_CONSTANTS['STATUS'][$status];
+	}
+
+	/*
+	if(!empty($status)) {
+		if($status==TRN_APPROVED) {
+			return TRNS_APPROVED;
+		} else
+		if($status==TRN_PROCESSING) {
+			return TRNS_PROCESSING;
+		} else
+		if($status==TRN_SENT) {
+			return TRNS_SENT;
+		} else
+		if($status==TRN_COMPLETED) {
+			return TRNS_COMPLETED;
+		} else
+		if($status==TRN_PENDING) {
+			return TRNS_PENDING;
+		} else
+		if($status==TRN_CANCELLED) {
+			return TRNS_CANCELLED;
+		} else
+		if($status==TRN_COMPLETED_MANUALLY) {
+			return TRNS_COMPLETED_MANUALLY;
+		} else
+		if($status==TRN_HOLD) {
+			return TRNS_HOLD;
+		} else
+		if($status==TRN_FAILED) {
+			return TRNS_FAILED;
+		} else
+		if($status==TRN_QUEUED) {
+			return TRNS_QUEUED;
+		} else
+		if($status==TRN_INVALID_SIM_COMMANDS) {
+			return TRNS_INVALID_SIM_COMMANDS;
+		} else
+		if($status==TRN_CLAIMED) {
+			return TRNS_CLAIMED;
+		} else
+		if($status==TRN_DRAFT) {
+			return TRNS_DRAFT;
+		} else
+		if($status==TRN_WAITING) {
+			return TRNS_WAITING;
+		} else
+		if($status==TRN_POSTED) {
+			return TRNS_POSTED;
+		} else
+		if($status==TRN_RECEIVED) {
+			return TRNS_RECEIVED;
+		}
+	}
+	*/
+
+	return 'UNKNOWN';
+}
+
+function getAllStatus() {
+	global $_CONSTANTS;
+
+	return $_CONSTANTS['STATUS'];
+}
+
+function pacsDoSoapLogin() {
+	global $PACS_URL, $PACS_IMAGEURL, $PACS_USER, $PACS_PASS;
+
+	if(!empty($PACS_URL)&&!empty($PACS_IMAGEURL)&&!empty($PACS_USER)&&!empty($PACS_PASS)) {
+	} else {
+		die('pacsDoSoapLogin: Invalid Parameters!');
+	}
+
+	$start_time = time();
+
+	print_r(array('pacsDoSoapLogin()'=>'Started.'));
+
+  //Data, connection, auth
+  //$dataFromTheForm = $_POST['fieldName']; // request data from the form
+  $soapUrl = $PACS_URL; // asmx URL of WSDL
+  $soapUser = $PACS_USER;  //  username
+  $soapPassword = $PACS_PASS; // password
+
+  // xml post structure
+
+  $xml_post_string = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Body><ReqAuthenticate xmlns="http://www.meridio.com/meridio.xsd"><UserName>'.$soapUser.'</UserName><Password>'.$soapPassword.'</Password><ClientWorkStation>PACS Integration Library</ClientWorkStation></ReqAuthenticate></soap:Body></soap:Envelope>';   // data from the form, e.g. some ID number
+
+ $headers = array(
+              "Content-type: text/xml;charset=\"utf-8\"",
+              "Accept: text/xml",
+              "Cache-Control: no-cache",
+              "Pragma: no-cache",
+              "Content-length: ".strlen($xml_post_string),
+          ); //SOAPAction: your op URL
+
+  $url = $soapUrl;
+
+  // PHP cURL  for https connection with auth
+  $ch = curl_init();
+  //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($ch, CURLOPT_USERPWD, $soapUser.":".$soapPassword); // username and password - declared at the top of the doc
+  //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+
+  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  //curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  //curl_setopt($ch, CURLOPT_HEADER, 1);
+
+  curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_post_string); // the SOAP request
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+  // converting
+  $response = curl_exec($ch);
+  curl_close($ch);
+
+  //pre(array('$response'=>$response));
+
+	$end_time = time();
+
+	$total_secs = $end_time - $start_time;
+
+	print_r(array('pacsDoSoapLogin()'=>'Ended ('.$total_secs.'seconds).'));
+
+  return $response;
+
+  // converting
+  //$response1 = str_replace("<soap:Body>","",$response);
+  //$response2 = str_replace("</soap:Body>","",$response1);
+
+  // convertingc to XML
+  //$parser = simplexml_load_string($response2);
+  // user $parser to get your data out of XML response and to display it.
+
+} // function pacsDoSoapLogin() {
+
+function pacsDoSoapSearch($token=false,$conn=false,$settime=false) {
+	global $PACS_URL, $PACS_IMAGEURL, $PACS_USER, $PACS_PASS;
+
+	if(!empty($PACS_URL)&&!empty($PACS_IMAGEURL)&&!empty($PACS_USER)&&!empty($PACS_PASS)) {
+	} else {
+		die('pacsDoSoapSearch: Invalid Parameters!');
+	}
+
+  if(!empty($token)&&!empty($conn)) {
+  } else {
+    return false;
+  }
+
+	$start_time = time();
+
+	print_r(array('pacsDoSoapSearch('.$conn.','.$token.')'=>'Started.'));
+
+  //Data, connection, auth
+  //$dataFromTheForm = $_POST['fieldName']; // request data from the form
+  $soapUrl = $PACS_URL; // asmx URL of WSDL
+  $soapUser = $PACS_USER;  //  username
+  $soapPassword = $PACS_PASS; // password
+  //$conn = "130565321";
+  //$conn = "482405265";
+  // xml post structure
+
+	if(!empty($settime)&&is_numeric($settime)) {
+		$today = $settime;
+	} else {
+		$today = time();
+	}
+
+  $tmm = intval(date('m', $today));
+  $tdd = intval(date('d', $today));
+  $tyy = intval(date('Y', $today));
+
+  $minusPeriod = 60 * 60 * 24 * 28;
+
+  $period = $today - $minusPeriod;
+
+  $pmm = intval(date('m', $period));
+  $pdd = intval(date('d', $period));
+  $pyy = intval(date('Y', $period));
+
+  $xml_post_string = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Header><Authenticated Token="'.$token.'" xmlns="http://www.meridio.com/meridio.xsd" /></soap:Header><soap:Body><ReqSearch xmlns="http://www.meridio.com/meridio.xsd"><Search><SrcSpec Type="DOCUMENT" Permission="READ" MaxHitsToReturn="1800" StartPositionOfHits="0" SearchAll="false" Scope="BOTH" SrcChildren="false" /><SrcDef><PropertyRoot><PropertyAndOp><StrTerm StrRelation="IS"><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1001" /><StrValue>'.$conn.'</StrValue></StrTerm><NumTerm NumRelation="EQUAL"><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1005" /><NumValue>1</NumValue></NumTerm><NumTerm NumRelation="EQUAL"><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1013" /><NumValue>0</NumValue></NumTerm><DateTerm DateRelation="dONORAFTER"><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /><DateValue Year="'.$pyy.'" Month="'.$pmm.'" Day="'.$pdd.'" Hour="0" Minute="0" Second="0" /></DateTerm><DateTerm DateRelation="dBEFORE"><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /><DateValue Year="'.$tyy.'" Month="'.$tmm.'" Day="'.$tdd.'" Hour="0" Minute="0" Second="0" /></DateTerm></PropertyAndOp></PropertyRoot></SrcDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1006" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1002" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1012" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1014" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1007" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /></ResDef><ResDef><KeyPropertyDef Object="VERSION" Type="FNUMBER" Id="11" /></ResDef></Search></ReqSearch></soap:Body></soap:Envelope>';
+
+ $headers = array(
+              "Content-type: text/xml;charset=\"utf-8\"",
+              "Accept: text/xml",
+              "Cache-Control: no-cache",
+              "Pragma: no-cache",
+              "Content-length: ".strlen($xml_post_string),
+          ); //SOAPAction: your op URL
+
+  $url = $soapUrl;
+
+  // PHP cURL  for https connection with auth
+  $ch = curl_init();
+  //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($ch, CURLOPT_USERPWD, $soapUser.":".$soapPassword); // username and password - declared at the top of the doc
+  //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+
+  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  //curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  //curl_setopt($ch, CURLOPT_HEADER, 1);
+
+  curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_post_string); // the SOAP request
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+  // converting
+  $response = curl_exec($ch);
+  curl_close($ch);
+
+  //pre(array('$response'=>$response));
+
+	$end_time = time();
+
+	$total_secs = $end_time - $start_time;
+
+	print_r(array('pacsDoSoapSearch()'=>'Ended ('.$total_secs.'seconds).'));
+
+  return $response;
+
+  // converting
+  //$response1 = str_replace("<soap:Body>","",$response);
+  //$response2 = str_replace("</soap:Body>","",$response1);
+
+  // convertingc to XML
+  //$parser = simplexml_load_string($response2);
+  // user $parser to get your data out of XML response and to display it.
+
+/*
+<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Header><Authenticated Token="03f9072e-cccc-aa6d-d292-f44f642e57ca" xmlns="http://www.meridio.com/meridio.xsd" /></soap:Header><soap:Body><ReqSearch xmlns="http://www.meridio.com/meridio.xsd"><Search><SrcSpec Type="DOCUMENT" Permission="READ" MaxHitsToReturn="1800" StartPositionOfHits="0" SearchAll="false" Scope="BOTH" SrcChildren="false" /><SrcDef><PropertyRoot><PropertyAndOp><StrTerm StrRelation="IS"><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1001" /><StrValue>832378282</StrValue></StrTerm><NumTerm NumRelation="EQUAL"><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1005" /><NumValue>1</NumValue></NumTerm><NumTerm NumRelation="EQUAL"><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1013" /><NumValue>0</NumValue></NumTerm><DateTerm DateRelation="dONORAFTER"><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /><DateValue Year="2017" Month="8" Day="25" Hour="0" Minute="0" Second="0" /></DateTerm><DateTerm DateRelation="dBEFORE"><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /><DateValue Year="2017" Month="9" Day="22" Hour="0" Minute="0" Second="0" /></DateTerm></PropertyAndOp></PropertyRoot></SrcDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1006" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CTEXT" Id="1002" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1012" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CNUMBER" Id="1014" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1007" /></ResDef><ResDef><KeyPropertyDef Object="DOCUMENT" Type="CDATE" Id="1003" /></ResDef><ResDef><KeyPropertyDef Object="VERSION" Type="FNUMBER" Id="11" /></ResDef></Search></ReqSearch></soap:Body></soap:Envelope>
+*/
+
+} // function pacsDoSoapSearch($token=false,$conn=false,$settime=false) {
+
+function pacsDoSoapLogout($token=false) {
+	global $PACS_URL, $PACS_IMAGEURL, $PACS_USER, $PACS_PASS;
+
+	if(!empty($PACS_URL)&&!empty($PACS_IMAGEURL)&&!empty($PACS_USER)&&!empty($PACS_PASS)) {
+	} else {
+		die('pacsDoSoapLogout: Invalid Parameters!');
+	}
+
+/*
+<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Header><Authenticated Token="04274864-1e20-c0cc-c742-46de9e913f64" xmlns="http://www.meridio.com/meridio.xsd" /></soap:Header><soap:Body><ReqCommit xmlns="http://www.meridio.com/meridio.xsd"><CommitSession><Remove /></CommitSession></ReqCommit></soap:Body></soap:Envelope>
+*/
+
+
+  if(!empty($token)) {
+  } else {
+    return false;
+  }
+
+	$start_time = time();
+
+	print_r(array('pacsDoSoapLogout()'=>'Started.'));
+
+  //Data, connection, auth
+  //$dataFromTheForm = $_POST['fieldName']; // request data from the form
+  $soapUrl = $PACS_URL; // asmx URL of WSDL
+  $soapUser = $PACS_USER;  //  username
+  $soapPassword = $PACS_PASS; // password
+  //$conn = "797559179";
+
+  // xml post structure
+
+  $xml_post_string = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Header><Authenticated Token="'.$token.'" xmlns="http://www.meridio.com/meridio.xsd" /></soap:Header><soap:Body><ReqCommit xmlns="http://www.meridio.com/meridio.xsd"><CommitSession><Remove /></CommitSession></ReqCommit></soap:Body></soap:Envelope>';
+
+ $headers = array(
+              "Content-type: text/xml;charset=\"utf-8\"",
+              "Accept: text/xml",
+              "Cache-Control: no-cache",
+              "Pragma: no-cache",
+              "Content-length: ".strlen($xml_post_string),
+          ); //SOAPAction: your op URL
+
+  $url = $soapUrl;
+
+  // PHP cURL  for https connection with auth
+  $ch = curl_init();
+  //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($ch, CURLOPT_USERPWD, $soapUser.":".$soapPassword); // username and password - declared at the top of the doc
+  //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+
+  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  //curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  //curl_setopt($ch, CURLOPT_HEADER, 1);
+
+  curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_post_string); // the SOAP request
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+  // converting
+  $response = curl_exec($ch);
+  curl_close($ch);
+
+  //pre(array('$response'=>$response));
+
+	$end_time = time();
+
+	$total_secs = $end_time - $start_time;
+
+	print_r(array('pacsDoSoapLogout()'=>'Ended ('.$total_secs.'seconds).'));
+
+  return $response;
+
+} // function pacsDoSoapLogout($token=false) {
+
+function pacsDoGetImage($url=false) {
+	global $PACS_URL, $PACS_IMAGEURL, $PACS_USER, $PACS_PASS;
+
+	if(!empty($PACS_URL)&&!empty($PACS_IMAGEURL)&&!empty($PACS_USER)&&!empty($PACS_PASS)) {
+	} else {
+		die('pacsDoSoapSearch: Invalid Parameters!');
+	}
+
+/*
+<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Header><Authenticated Token="04274864-1e20-c0cc-c742-46de9e913f64" xmlns="http://www.meridio.com/meridio.xsd" /></soap:Header><soap:Body><ReqCommit xmlns="http://www.meridio.com/meridio.xsd"><CommitSession><Remove /></CommitSession></ReqCommit></soap:Body></soap:Envelope>
+*/
+
+
+  if(!empty($url)) {
+  } else {
+    return false;
+  }
+
+	$start_time = time();
+
+	print_r(array('pacsDoGetImage()'=>'Started.'));
+
+  // PHP cURL  for https connection with auth
+  $ch = curl_init();
+  //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($ch, CURLOPT_USERPWD, $soapUser.":".$soapPassword); // username and password - declared at the top of the doc
+  //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+
+  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  //curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  //curl_setopt($ch, CURLOPT_HEADER, 1);
+
+  curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+  //curl_setopt($ch, CURLOPT_POST, true);
+  //curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_post_string); // the SOAP request
+  //curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+  // converting
+  $response = curl_exec($ch);
+  curl_close($ch);
+
+  //pre(array('$response'=>$response));
+
+	$end_time = time();
+
+	$total_secs = $end_time - $start_time;
+
+	print_r(array('pacsDoGetImage()'=>'Ended ('.$total_secs.'seconds).'));
+
+  return $response;
+
+} // function pacsDoGetImage($url=false) {
+
+function pacsDoProcess($conn=false,$token=false) {
+	global $PACS_URL, $PACS_IMAGEURL, $PACS_USER, $PACS_PASS;
+
+	if(!empty($PACS_URL)&&!empty($PACS_IMAGEURL)&&!empty($PACS_USER)&&!empty($PACS_PASS)) {
+	} else {
+		die('pacsDoProcess: Invalid Parameters!');
+	}
+
+	if(!empty($conn)&&is_numeric($conn)) {
+	} else {
+		return false;
+	}
+
+	$start_time = time();
+
+	print_r(array('pacsDoProcess('.$conn.','.$token.')'=>'Started.'));
+
+	//$token = false;
+
+	$success = false;
+
+	if(!empty($token)) {
+	} else {
+		$res = pacsDoSoapLogin();
+
+		if(preg_match('/Token="(.+?)"/si',$res,$match)) {
+		  //print_r(array('$match'=>$match));
+
+		  $token = $match[1];
+		}
+	}
+
+	if(!empty($token)) {
+
+	  $res = pacsDoSoapSearch($token,$conn);
+
+	  if(preg_match('/\<SOAP\-ENV\:Envelope.+?\<\/SOAP\-ENV\:Envelope\>/si',$res,$match)) {
+
+	    $xml = $match[0];
+
+	    if(preg_match('/KeyVersion\s+VersionId\=\"(\d+)\"/si',$xml,$versionId)&&preg_match('/KeyDocument\s+Id\=\"(\d+)\"/si',$xml,$documentId)) {
+	      //print_r(array('$versionId'=>$versionId,'$documentId'=>$documentId));
+
+				$imageUrl = $PACS_IMAGEURL;
+
+				$imageUrl = str_replace('%TOKEN%',$token,$imageUrl);
+				$imageUrl = str_replace('%DOCID%',$documentId[1],$imageUrl);
+				$imageUrl = str_replace('%VERSIONID%',$versionId[1],$imageUrl);
+
+	      //$imageUrl = 'http://pacs.tntad.fedex.com/TNTCache/retrieve.asp?Token='.$token.'&DocId='.$documentId[1].'&VersionId='.$versionId[1];
+
+	      print_r(array('$imageUrl'=>$imageUrl));
+
+				$loopctr = 0;
+
+				while(1) {
+
+					$img = pacsDoGetImage($imageUrl);
+
+		      if(preg_match('/\<ErrorCode\>(\d+)\<\/ErrorCode\>.+?\<Description\>(.+?)\<\/Description\>/si',$img,$mt)) {
+
+		        pre(array('ERROR'=>$mt));
+
+						$success = 3;
+
+						break;
+
+		      } else {
+
+		        //$filenameonly = $documentId[1] . '.tiff';
+
+		        $filenameonly = $conn . '-' . time() . '.tiff';
+
+		        $connfilename = $conn . '.tiff';
+
+		        $connfile = '/var/log/cache/'.$connfilename;
+
+		        //print_r(array('$img'=>base64_encode($img)));
+
+		        $filenamepath = '/var/log/cache/'.$filenameonly;
+
+		        //print_r(array('$filename'=>$filename));
+
+		        if($hf=fopen($filenamepath,'w')) {
+		          $ret=fwrite($hf,$img);
+
+		          fclose($hf);
+		        }
+
+		        $partial = false;
+
+		        if(preg_match('/^(inside\s+retrieve)II/s',$img,$mt)) {
+							continue;
+		        } else {
+		          rename($filenamepath,$connfile);
+							$success = 1;
+							break;
+		        }
+
+		      }
+
+					$loopctr++;
+
+					print_r(array('loop'=>$loopctr));
+
+				} // while(1) {
+
+	    } else {
+	      print_r(array('ERROR'=>'No Image Found!'));
+				$success = 2;
+	    }
+
+	    //$arr = xmlobj2array($match[0]);
+
+	    //print_r(array('$arr'=>$arr));
+	  }
+
+	  //$res = pacsDoSoapLogout($token);
+
+	}
+
+	$end_time = time();
+
+	$total_secs = $end_time - $start_time;
+
+	print_r(array('pacsDoProcess()'=>'Ended ('.$total_secs.'seconds).'));
+
+	return $success;
+
+} // function pacsDoProcess($conn=false) {
+
 /* INCLUDES_END */
 
 

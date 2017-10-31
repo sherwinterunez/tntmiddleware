@@ -22,6 +22,7 @@ if(defined('ANNOUNCE')) {
 define('INCLUDE_PATH', ABS_PATH . 'includes/');
 
 require_once(INCLUDE_PATH.'config.inc.php');
+require_once(INCLUDE_PATH.'constants.inc.php');
 require_once(INCLUDE_PATH.'phpseclib/Math/BigInteger.php');
 require_once(INCLUDE_PATH.'phpseclib/Crypt/RSA.php');
 require_once(INCLUDE_PATH.'array2xml.inc.php');
@@ -49,6 +50,7 @@ require_once(INCLUDE_PATH.'defaults.inc.php');
 require_once(INCLUDE_PATH.'access.inc.php');
 require_once(INCLUDE_PATH.'filecache5.inc.php');
 require_once(INCLUDE_PATH.'curl.inc.php');
+require_once(INCLUDE_PATH.'ftp.inc.php');
 require_once(INCLUDE_PATH.'simpleimage.inc.php');
 require_once(INCLUDE_PATH.'pdf2img.inc.php');
 require_once(INCLUDE_PATH.'download.inc.php');

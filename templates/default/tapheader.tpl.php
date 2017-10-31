@@ -491,7 +491,7 @@ $settings_titlefontsize = getOption('$SETTINGS_TITLEFONTSIZE',30);
 			<div id="studentcontentdiv">
 				<div id="studentname">TAP N' TXT</div>
 				<div id="studentyearsection">Student Attendance System</div>
-				<div id="studentremarks">by OBIS Software Technology Inc.</div>
+				<div id="studentremarks">by APPTOPUS, INC.</div>
 				<br class="br" />
 			</div>
 		</div>
