@@ -169,7 +169,7 @@ if(!class_exists('APP_Index')) {
 		}
 
 		function render($vars) {
-			redirect301('/tap/');
+			redirect301('/app/');
 		}
 
 		function render2($vars) {

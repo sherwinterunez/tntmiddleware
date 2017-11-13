@@ -268,6 +268,8 @@ function doInit() {
 
   proccessPacs();
 
+  //processQuantum();
+
 }
 
 function proccessPacs() {
@@ -394,7 +396,42 @@ function pacsDownload(id,conn) {
     console.error(`child stderr:\n${data}`);
     //console.error(`${data}`);
   });
-}
+
+} // function pacsDownload(id,conn) {
+
+function processQuantum(id,conn) {
+
+  var quantumData = false;
+
+  id = id ? id : 0;
+  conn = conn ? conn : 0;
+
+  var quantumChild = spawn("/usr/bin/php", [__dirname+"/processquantum.php",conn,id]);
+
+  //var pacsChild = spawn("php", [__dirname+"/processpacs.php"]);
+
+  //var pacsChild = spawn("pwd");
+
+  quantumChild.on('exit', function (code, signal) {
+    //console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+
+    setTimeout(function(){
+      processQuantum();
+    }, TIMEOUT);
+
+  });
+
+  pacsChild.stdout.on('data', (data) => {
+    console.log(`child stdout:\n`);
+    console.log(`${data}`);
+  });
+
+  pacsChild.stderr.on('data', (data) => {
+    console.error(`child stderr:\n`);
+    console.error(`${data}`);
+  });
+
+} // function processQuantum(id,conn) {
 
 function adminSMS() {
 

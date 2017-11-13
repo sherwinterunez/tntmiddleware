@@ -1,6 +1,6 @@
 <?php
 /*
-* 
+*
 * Author: Sherwin R. Terunez
 * Contact: sherwinterunez@yahoo.com
 *
@@ -25,7 +25,7 @@ define('MODULE_PATH', ABS_PATH . 'modules/');
 require_once(MODULE_PATH.'baseclasses.mod.php');
 require_once(MODULE_PATH.'index.mod.php');
 require_once(MODULE_PATH.'login.mod.php');
-require_once(MODULE_PATH.'tap.mod.php');
+//require_once(MODULE_PATH.'tap.mod.php');
 //require_once(MODULE_PATH.'admin.mod.php');
 require_once(MODULE_PATH.'app.mod.php');
 //require_once(MODULE_PATH.'app.user.mod.php');

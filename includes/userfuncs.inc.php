@@ -1627,8 +1627,35 @@ function pgDateUnix($dt=false,$format=false) {
 	return date($format,$dt);
 }
 
+/*function getDbDate($mode=0,$f1='m-d-Y',$f2='H:i') {
+	global $appdb;
+
+	if(!($result=$appdb->query("select now()"))) {
+		return false;
+	}
+
+	// m-d-Y H:i
+
+	if(!empty($result['rows'][0]['now'])) {
+		if($mode==1) {
+			return array('date'=>pgDate($result['rows'][0]['now'],$f1),'time'=>pgDate($result['rows'][0]['now'],$f2));
+		}
+
+		return pgDate($result['rows'][0]['now'],"$f1 $f2");
+	}
+
+	//pre(array('$result'=>$result));
+	return false;
+}*/
+
 function getDbDate($mode=0,$f1='m-d-Y',$f2='H:i') {
 	global $appdb;
+
+	if($mode==2) {
+		$unixdate = intval(getDbUnixDate()) + 86400;
+
+		return array('date'=>pgDateUnix($unixdate,$f1),'time'=>pgDateUnix($unixdate,$f2));
+	}
 
 	if(!($result=$appdb->query("select now()"))) {
 		return false;

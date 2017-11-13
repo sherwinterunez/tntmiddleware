@@ -1083,7 +1083,20 @@ if(!class_exists('APP_app_middleware')) {
 					} else
 					if($this->post['table']=='middleware') {
 
-						if(!($result = $appdb->query("select * from tbl_midlog order by midlog_id asc"))) {
+						$where = '';
+
+            if(!empty($this->post['datefrom'])&&!empty($this->post['dateto'])) {
+              $datefrom = date2timestamp($this->post['datefrom'],'m-d-Y H:i');
+              $dateto = date2timestamp($this->post['dateto'],'m-d-Y H:i');
+              $dtfrom = date('m-d-Y H:i',$datefrom);
+              $dtto = date('m-d-Y H:i',$dateto);
+
+              //pre(array('$datefrom'=>$datefrom,'$dtfrom'=>$dtfrom,'$dateto'=>$dateto,'$dtto'=>$dtto));
+
+              $where = "where extract(epoch from midlog_createstamp)>=$datefrom and extract(epoch from midlog_createstamp)<=$dateto";
+            }
+
+						if(!($result = $appdb->query("select * from tbl_midlog $where order by midlog_id asc"))) {
 							json_encode_return(array('error_code'=>123,'error_message'=>'Error in SQL execution.<br />'.$appdb->lasterror,'$appdb->lasterror'=>$appdb->lasterror,'$appdb->queries'=>$appdb->queries));
 							die;
 						}

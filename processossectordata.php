@@ -56,6 +56,7 @@ function processOS($pathfile=false,$file=false) {
   }
 
   if(!($fh = fopen($pathfile,'r'))) {
+		@fclose($fh);
 		die('error opening file: '.$pathfile);
 	}
 
@@ -71,6 +72,8 @@ function processOS($pathfile=false,$file=false) {
     }
 
   }
+
+	@fclose($fh);
 
   if(!empty($connotes)) {
     print_r(array('$connotes'=>$connotes));
@@ -131,8 +134,12 @@ function processOS($pathfile=false,$file=false) {
 
 		}
 
+		//@unlink($pathfile);
+
     return $connotes;
   }
+
+	//@unlink($pathfile);
 
   return false;
 }
@@ -146,6 +153,7 @@ function processSector($pathfile=false,$file=false) {
   }
 
   if(!($fh = fopen($pathfile,'r'))) {
+		@fclose($fh);
 		die('error opening file: '.$pathfile);
 	}
 
@@ -166,6 +174,8 @@ function processSector($pathfile=false,$file=false) {
     }
 
   }
+
+	@fclose($fh);
 
   if(!empty($connotes)) {
     print_r(array('$connotes'=>$connotes));
@@ -226,8 +236,12 @@ function processSector($pathfile=false,$file=false) {
 
 		}
 
+		//@unlink($pathfile);
+
     return $connotes;
   }
+
+	//@unlink($pathfile);
 
   return false;
 }
@@ -247,6 +261,8 @@ if(!empty($_SERVER['argv'])) {
 
 	$parse = fgets($fh);
 
+	@fclose($fh);
+
 	if(!empty($parse)&&substr($parse,3,2)=='WW'){
 		print_r(array('OS DATA'));
     processOS($pathfile,$file);
@@ -258,7 +274,7 @@ if(!empty($_SERVER['argv'])) {
 		print_r(array('UNKNOWN DATA'));
 	}
 
-  fclose($fh);
+	//@unlink($pathfile);
 
 }
 

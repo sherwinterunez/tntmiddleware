@@ -169,6 +169,34 @@ $myToolbar = array($moduleid.'refresh',$moduleid.'from',$moduleid.'datefrom',$mo
 
 		myWinToolbar.resetAll();
 
+		if(myWinToolbar.datefromval) {
+
+		} else {
+			var input_from = myWinToolbar.getInput("<?php echo $moduleid; ?>datefrom");
+			input_from.setAttribute("readOnly", "true");
+			//input_from.onclick = function(){ setSens(input_till,"max"); }
+
+			var input_till = myWinToolbar.getInput("<?php echo $moduleid; ?>dateto");
+			input_till.setAttribute("readOnly", "true");
+			//input_till.onclick = function(){ setSens(input_from,"min"); }
+
+			myCalendar1_%formval% = new dhtmlXCalendarObject([input_from]);
+			//myCalendar1_%formval%.setDateFormat("%m-%d-%Y %H:%i");
+			myCalendar1_%formval%.setDateFormat("%m-%d-%Y %H:%i");
+			//myCalendar1_%formval%.hideTime();
+
+			myCalendar2_%formval% = new dhtmlXCalendarObject([input_till]);
+			//myCalendar2_%formval%.setDateFormat("%m-%d-%Y %H:%i");
+			myCalendar2_%formval%.setDateFormat("%m-%d-%Y %H:%i");
+			//myCalendar2_%formval%.hideTime();
+
+			myWinToolbar.datefromval = "<?php $dt=getDbDate(1); echo $dt['date']; ?> 00:00";
+			myWinToolbar.datetoval = "<?php $dt=getDbDate(2); echo $dt['date']; ?> 00:00";
+
+			myWinToolbar.setValue("<?php echo $moduleid; ?>datefrom",myWinToolbar.datefromval);
+			myWinToolbar.setValue("<?php echo $moduleid; ?>dateto",myWinToolbar.datetoval);
+		}
+
 		var formData2_%formval% = [
 			{type: "settings", position: "label-left", labelWidth: 130, inputWidth: 200},
 			{type: "fieldset", name: "settings", hidden: true, list:[
@@ -200,9 +228,12 @@ $myToolbar = array($moduleid.'refresh',$moduleid.'from',$moduleid.'datefrom',$mo
 
 ///////////////////////////////////
 
+		var datefrom = myTab.toolbar.getValue("<?php echo $moduleid; ?>datefrom");
+		var dateto = myTab.toolbar.getValue("<?php echo $moduleid; ?>dateto");
+
 		myTab.postData('/'+settings.router_id+'/json/', {
 			odata: {},
-			pdata: "routerid="+settings.router_id+"&action=grid&formid=<?php echo $templatemainid.$submod; ?>grid&module=<?php echo $moduleid; ?>&method=<?php echo $method; ?>&table=middleware&formval=%formval%",
+			pdata: "routerid="+settings.router_id+"&action=grid&formid=<?php echo $templatemainid.$submod; ?>grid&module=<?php echo $moduleid; ?>&method=<?php echo $method; ?>&table=middleware&formval=%formval%&datefrom="+encodeURIComponent(datefrom)+"&dateto="+encodeURIComponent(dateto),
 		}, function(ddata,odata){
 
 			if(typeof(myWinObj.myGridMiddleware)!='null'&&typeof(myWinObj.myGridMiddleware)!='undefined'&&myWinObj.myGridMiddleware!=null) {

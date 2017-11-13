@@ -68,14 +68,17 @@ $FTP_PASS = '20EY9YER';
 
 //$QUANTUM_FOLDER_SOURCE = "/tmp/data/d/"; //"/data/PH/Data/"; //"/tmp/data/";
 
-//$TNTACCESS_OSUPLOAD_SCRIPT = "/srv/www/tntaccess/osdata/osuploadv2.php";
-//$TNTACCESS_SECTORUPLOAD_SCRIPT = "/srv/www/tntaccess/sectordata/sduploadv2.php";
+$TNTACCESS_OSUPLOAD_SCRIPT = "cd /srv/www/tntaccess/osdata/; php osuploadv2.php";
+$TNTACCESS_SECTORUPLOAD_SCRIPT = "cd /srv/www/tntaccess/sectordata/; php sduploadv2.php";
 
-$TNTACCESS_OSUPLOAD_SCRIPT = "cd /WEBDEV/tntaccess.local/osdata/; php osuploadv2.php";
-$TNTACCESS_SECTORUPLOAD_SCRIPT = "cd /WEBDEV/tntaccess.local/sectordata/; php sduploadv2.php";
+//$TNTACCESS_OSUPLOAD_SCRIPT = "cd /WEBDEV/tntaccess.local/osdata/; php osuploadv2.php";
+//$TNTACCESS_SECTORUPLOAD_SCRIPT = "cd /WEBDEV/tntaccess.local/sectordata/; php sduploadv2.php";
 
-$QUANTUM_FOLDER_SOURCE = "/tmp/data/"; //"/data/PH/Data/"; //
-$QUANTUM_FOLDER_TARGET = "/tmp/data/t/";
+//$QUANTUM_FOLDER_SOURCE = "/tmp/data/"; //"/data/PH/Data/"; //
+//$QUANTUM_FOLDER_TARGET = "/tmp/data/t/";
+
+$QUANTUM_FOLDER_SOURCE = "/data/PH/Data/";
+$QUANTUM_FOLDER_TARGET = "/data/PH/Temp/";
 
 $QUANTUM_FOLDER_TARGETA = "/tmp/data/a/";
 $QUANTUM_FOLDER_TARGETB = "/tmp/data/b/";
@@ -84,11 +87,33 @@ $QUANTUM_FOLDER_TARGETC = "/tmp/data/c/";
 $FTP_FOLDER = '/PH/Temp/';
 
 $QUANTUM_VALID_FILES = array(
-	/*'MNL_D02DAT' => array(
-		'regx'=>'MNL\_D02DAT.+?',
+	'MNL_D02DAT' => array(
+		//'regx'=>'MNL\_D02DAT.+?',
 		'source'=>array('folder'=>array($QUANTUM_FOLDER_SOURCE)),
 		'target'=>array(
-			'folder'=>array($QUANTUM_FOLDER_TARGET,$QUANTUM_FOLDER_TARGETA,$QUANTUM_FOLDER_TARGETB,$QUANTUM_FOLDER_TARGETC),
+			'folder'=>array($QUANTUM_FOLDER_TARGET),
+		),
+		'script'=>array(
+			'php /srv/www/tntmiddleware.dev/processossectordata.php',
+			//'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
+		),
+	),
+	'MNL_OSDATA' => array(
+		//'regx'=>'MNL\_D02DAT.+?',
+		'source'=>array('folder'=>array($QUANTUM_FOLDER_SOURCE)),
+		'target'=>array(
+			'folder'=>array($QUANTUM_FOLDER_TARGET),
+		),
+		'script'=>array(
+			'php /srv/www/tntmiddleware.dev/processossectordata.php',
+			//'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
+		),
+	),
+	/*'MNL_OSDATA' => array(
+		//'regx'=>'MNL\_D02DAT.+?',
+		'source'=>array('folder'=>array($QUANTUM_FOLDER_SOURCE)),
+		'target'=>array(
+			'folder'=>array($QUANTUM_FOLDER_TARGET),
 			'ftp'=>array(
 				array(
 					'folder'=>array($FTP_FOLDER),
@@ -101,45 +126,31 @@ $QUANTUM_VALID_FILES = array(
 			),
 		),
 		'script'=>array(
-			'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
+			'php /srv/www/tntmiddleware.dev/processossectordata.php',
+			//'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
 		),
 	),*/
-	/*'MNL_OSDATA' => array(
+	/*'phmnlu01' => array(
 		'source'=>array('folder'=>array($QUANTUM_FOLDER_SOURCE)),
 		'target'=>array(
 			'folder'=>array($QUANTUM_FOLDER_TARGET),
 			'ftp'=>array(
-				'folder'=>array($FTP_FOLDER),
-				'connection'=>array(
-					'host'=>$FTP_HOST,
-					'user'=>$FTP_USER,
-					'password'=>$FTP_PASS
-				),
-			),
-		),
-		'script'=>array(
-			'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
-		),
-	),*/
-	'phmnlu01' => array(
-		'source'=>array('folder'=>array($QUANTUM_FOLDER_SOURCE)),
-		'target'=>array(
-			'folder'=>array($QUANTUM_FOLDER_TARGET),
-			'ftp'=>array(
-				'folder'=>array('/ftp/TNTX582/PH/Temp/'),
-				'connection'=>array(
-					'host'=>$FTP_HOST, //'164.39.122.51',
-					'user'=>$FTP_USER,
-					'password'=>$FTP_PASS
+				array(
+					'folder'=>array('/ftp/TNTX582/PH/Temp/'),
+					'connection'=>array(
+						'host'=>$FTP_HOST, //'164.39.122.51',
+						'user'=>$FTP_USER,
+						'password'=>$FTP_PASS
+					),
 				),
 			),
 		),
 		'processdelay'=>60*2, // in seconds
 		'script'=>array(
-			//'php /srv/www/tntmiddleware.dev/processossectordata.php',
-			'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
+			'php /srv/www/tntmiddleware.dev/processossectordata.php',
+			//'php /WEBDEV/tntmiddleware.dev/processossectordata.php'
 		),
-	)
+	)*/
 );
 
 /* INCLUDES_END */
